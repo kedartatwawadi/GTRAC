@@ -9,6 +9,7 @@ GTRAC is a formulation for compression of a collection of genomic variants. It a
 
 ### Data
 To emulate the experiments conducted in the paper. You can run the following scripts to download the relevant data:
+
 1. **H.sapiens dataset**: 
 2. **A.Thaliana dataset**:
 
