@@ -3,17 +3,19 @@ GeneType Random Access Compressor
 
 ## Getting Started
 ### Install
-The install the dependencies and the required code:
+To install the dependencies and the required code:
 ```bash
+# download GTRAC
+git clone https://github.com/kedartatwawadi/GTRAC
+
 # Run the install file to download and install rsdic,TGC and GTRAC libraries
 ./install.sh
 ```
 
-The shell script clones the following git repositories and installs them:
+The shell script clones the following dependencies and installs them:
 
-1. ![rsdic](): The library implementation of succinct bitvectors
-2. ![TGC](): The TGC Compressor, which we use for VCF file handling and variant dictionary compression
-3. ![GTRAC](): The GTRAC compressor implementation
+1. ![rsdic](https://github.com/kedartatwawadi/rsdic): The library implementation of succinct bitvectors
+2. ![TGC](https://github.com/refresh-bio/TGC): The TGC Compressor, which we use for VCF file handling and variant dictionary compression
 
 ### Run
 You can run an example of the GTRAC compressor using the following command.
