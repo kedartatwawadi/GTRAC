@@ -50,7 +50,7 @@ vector<unsigned char> column_data;
 // ***************************************************************
 RSDic* readSuccintBitVectors(string bvDictDir)
 {
-	cout << bvDictDir << endl;
+	//cout << bvDictDir << endl;
 	RSDic* bvDict = new RSDic[no_files];
 	filebuf fb;
 	string filename = (bvDictDir + ".succint_bv"); 
@@ -363,7 +363,7 @@ void extractLong(int file_id,int start,int len)
 	int default_len_block = len/factor;
 	int len_block = default_len_block;
 
-	cout << "Block length: " << default_len_block << endl;
+	//cout << "Block length: " << default_len_block << endl;
 
 	#pragma omp parallel for
 	for( int i = 0; i < factor; i++)
@@ -379,7 +379,7 @@ void extractLong(int file_id,int start,int len)
 			extract_block(file_id, default_len_block*i + start, default_len_block, i);
 		}
 
-		cout << "Start Pos: " << start_pos << "Block id:" << i << endl;
+		//cout << "Start Pos: " << start_pos << "Block id:" << i << endl;
 
 		
 	}	
@@ -425,7 +425,7 @@ int main(int argc, char** argv)
 	int start = -1;
 	int len = -1;
 
-	if((argc < 4) || (argc < 6 && strcmp(argv[1], "d") == 0 ) || (argc < 6 && strcmp(argv[1], "f") == 0))
+	if((argc < 4) || (argc < 6 && strcmp(argv[1], "d") == 0 ))
 	{
 			cout << "Usage: tgc <mode> <output_name> [list_file_name]\n";
 			cout << "  mode               - c (column decompress), d (decompress), f(fast decompress)  \n";
@@ -441,6 +441,10 @@ int main(int argc, char** argv)
 		decomp_column = true;
 		column_no = atoi(argv[3]);
 		cout << "Column to extract: " << column_no << endl;
+	}
+	else if( strcmp(argv[1], "f") == false)
+	{
+		file_id = atoi(argv[3]);
 	}
 	else
 	{
@@ -507,7 +511,7 @@ int main(int argc, char** argv)
 			ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
 			for(int j = 0 ; j < number_of_blocks ; j++ )
 			{
-				cout << "Block id: " << j << endl;
+				//cout << "Block id: " << j << endl;
 				for(int i = 0 ; i < block_data[j].size() ; i++ )
 				{
 					temp = block_data[j][i];

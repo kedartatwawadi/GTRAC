@@ -394,14 +394,23 @@ compress_bv()
 
 decompress_bv()
 {
+	cd ../Data/
+	#Sample Decompressions
 	for c in $CHROM
         do
                 echo "**************************************************************"                                           
                 echo "*** Decompression of rows/columns of H for chromosome $c  ***"                                    
                 echo "**************************************************************"                                           
                  
-                cd chr$c                                                              
-                ../GTRAC/src/gtrac_decomp d list                                                                                         
+                cd chr$c
+		pwd                                                              
+                ../../GTRAC/src/gtrac_decomp f chr$c.list 100
+                ../../GTRAC/src/gtrac_decomp f chr$c.list 1000
+                ../../GTRAC/src/gtrac_decomp f chr$c.list 2000
+                ../../GTRAC/src/gtrac_decomp c chr$c.list 100
+                ../../GTRAC/src/gtrac_decomp c chr$c.list 200
+                ../../GTRAC/src/gtrac_decomp c chr$c.list 300
+                                                                                         
                 cd ..
         done
 
