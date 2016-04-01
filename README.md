@@ -14,8 +14,8 @@ git clone https://github.com/kedartatwawadi/GTRAC
 
 The shell script clones the following dependencies and installs them:
 
-1. ![rsdic](https://github.com/kedartatwawadi/rsdic): The library implementation of succinct bitvectors
-2. ![TGC](https://github.com/refresh-bio/TGC): The TGC Compressor, which we use for VCF file handling and variant dictionary compression
+1. [rsdic](https://github.com/kedartatwawadi/rsdic): The library implementation of succinct bitvectors
+2. [TGC](https://github.com/refresh-bio/TGC): The TGC Compressor, which we use for VCF file handling and variant dictionary compression
 
 ### Run
 You can run an example of the GTRAC compressor using the following command.
