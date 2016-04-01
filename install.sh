@@ -1,6 +1,6 @@
-#!\bin\bash
+#!/bin/bash
 
-
+cd ..
 # Clone the install rsdic repo
 git clone https://github.com/kedartatwawadi/rsdic
 cd rsdic
