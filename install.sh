@@ -22,4 +22,8 @@ cd src
 make
 cd ..
 
+# Create Data dir to hold the experiment data
+mkdir ../Data
+
+
 
