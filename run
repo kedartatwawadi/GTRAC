@@ -383,6 +383,7 @@ compress_bv()
                 echo "************************************************************"
           cd chr$c
 		mkdir compressed_files
+		mkdir output_gtrac
 		mkdir compressed_files/phrase_params/
 		ls *chr$c.bv > chr$c.list
 		../../GTRAC/src/gtrac_comp chr$c chr$c.list		

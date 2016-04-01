@@ -22,9 +22,11 @@
 #include "rsdic/RSDicBuilder.hpp"
 #include "omp.h"
 
-#define phraseEndDir "bv_"
-#define phraseLiteralDir "bv1_"
-#define phraseSourceSizeDir "bv2_"
+#define phraseEndDir "compressed_files/phrase_end"
+#define phraseLiteralDir "compressed_files/phrase_C"
+#define phraseSourceSizeDir "compressed_files/phrase_s"
+#define phraseParmsDir "compressed_files/phrase_params"
+#define resultsDir "output_gtrac"
 
 using namespace std;
 using namespace rsdic;
@@ -51,7 +53,7 @@ RSDic* readSuccintBitVectors(string bvDictDir)
 	cout << bvDictDir << endl;
 	RSDic* bvDict = new RSDic[no_files];
 	filebuf fb;
-	string filename = (bvDictDir + "single_file" + ".bv"); 
+	string filename = (bvDictDir + ".succint_bv"); 
 	fb.open(filename.c_str(),std::ios::in);
 	
 	for (int i = 0 ; i < no_files ; i++)
@@ -118,7 +120,7 @@ void readReferenceVector()
 unsigned char getNewCharforPhrase(int file_id, int phrase_id)
 {
 	string filename = file_names[file_id];
-	ifstream file(("log_folder_3/log_" + filename + ".txt"),ios::in | ios::binary);
+	ifstream file(((string)phraseParmsDir + "/" + filename + ".parms"),ios::in | ios::binary);
 	int rank_literal = phraseLiteral[file_id].Rank(phrase_id-1,true);
 	int rank_source_size = phraseSourceSize[file_id].Rank(phrase_id-rank_literal-1,true);
 	int position = (phrase_id-1)*1 + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
@@ -153,7 +155,7 @@ unsigned char getNewCharforPhrase(int file_id, int phrase_id)
 int getSourceforPhrase( int file_id, int phrase_id)
 {
 	string filename = file_names[file_id];
-	ifstream file(("log_folder_3/log_" + filename + ".txt"),ios::in | ios::binary);
+	ifstream file(((string)phraseParmsDir + +"/"+ filename + ".parms"),ios::in | ios::binary);
 	int rank_literal = phraseLiteral[file_id].Rank(phrase_id-1,true);
 	int rank_source_size = phraseSourceSize[file_id].Rank(phrase_id-1-rank_literal,true);
 	int position = (phrase_id-1)*1 + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
@@ -502,7 +504,7 @@ int main(int argc, char** argv)
 		if(fast_decomp)
 		{
 			unsigned char temp = 0;
-			ofstream output_file("output_3_" + file_names[file_id], ios::binary);
+			ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
 			for(int j = 0 ; j < number_of_blocks ; j++ )
 			{
 				cout << "Block id: " << j << endl;
@@ -520,7 +522,7 @@ int main(int argc, char** argv)
 		else
 		{	
 			unsigned char temp = 0;
-			ofstream output_file("output_d3_" + file_names[file_id], ios::binary);
+			ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
 			for(int i = 0 ; i < data.size() ; i++ )
 			{
 				temp = data[i];
