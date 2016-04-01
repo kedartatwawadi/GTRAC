@@ -1,0 +1,458 @@
+#!/bin/bash
+#A large part of the source code reused from the tgc source code: https://github.com/refresh-bio/TGC
+#We are thankful to the authors of TGC for providing the source code for their tool.
+
+source config.ini
+
+
+## Start position of PAR 1 region in X chromosome
+START_X_MAL1=60001
+END_X_MAL1=2699520
+
+## Start position of PAR 2 region in X chromosome
+START_X_MAL2=154931044
+END_X_MAL2=155260560  
+
+## Start position of nonPAR region in X chromosome
+START_X_MAL=2699521
+END_X_MAL=154931043
+
+## Start position of nonPAR region in Y chromosome
+START_Y_MAL=2649521
+END_Y_MAL=59034049
+
+usage()
+{
+cat << EOF
+usage: $0 options
+
+
+OPTIONS:
+   -h      Show this message
+   
+   -a      Download all necessary files (reference sequences and VCF files) and decompress them
+   -b      Preprocess reference sequences and VCF files for chromosomes X and Y (necessary to process these chromosomes)
+   -c      Create minimal VCF (*.min) from the VCF file.
+   -d      Create consensus sequences for all individuals from appropriate reference sequences and VCF minimal files, for specified chromosomes (\$CHROM)
+   -e      Create variant database (*.vd) and byte vectors (*.bv) for all individuals from appropriate VCF minimal files, for specified chromosomes (\$CHROM)
+   -f      Create consensus sequences from the appropriate reference sequence, variant database and byte vectors, for specified chromosomes (\$CHROM)
+   -g      Recreate minimal VCF files for specified chromosomes (\$CHROM) from appropriate reference sequences, variant database and byte vectors of all individuals 
+   -i      Compress byte vectors for specified chromosomes (\$CHROM)
+   -j      Decompress byte vectors for specified chromosomes (\$CHROM)
+   -k      Compress variant database files for specified chromosomes (\$CHROM)
+   -l      Decompress variant database files for specified chromosomes (\$CHROM)             
+ 		
+EOF
+}
+
+
+download()
+{
+	echo "********************************************************************************"
+	echo "*** Reference sequence(s) are being downloaded to the $REF directory ***"
+	echo "********************************************************************************"
+        cd ../Data/
+	if [ ! -d "$REF" ]
+	then
+	  mkdir $REF
+	fi		
+	
+	cd $REF
+
+	X_downloaded="0";
+
+	for c in $CHROM
+        do
+		echo $c
+		if [[ $c == X* ]] && [[ $X_downloaded == "0" ]]
+                then
+			echo "*** Downloading reference sequence for chr X ***"
+			if [ -f chrX.fa.gz ]; then
+      			 rm chrX.fa.gz
+			fi
+			wget -nv ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/Primary_Assembly/assembled_chromosomes/FASTA/chrX.fa.gz 
+			echo "*** Decompressing reference sequence for chr X ***"
+			gzip -d chrX.fa.gz
+			X_downloaded="1"
+		elif [ $c == "Y-mal" ]
+                   then
+			echo "*** Downloading reference sequence for chr Y ***"  
+			if [ -f chrY.fa.gz ]; then
+      			 rm chrY.fa.gz
+			fi
+			
+			wget -nv ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/Primary_Assembly/assembled_chromosomes/FASTA/chrY.fa.gz 
+                        echo "*** Decompressing reference sequence for chr Y ***" 
+                        gzip -d chrY.fa.gz
+		elif [[ $c != X* ]] 
+		then
+			echo "*** Downloading reference sequence for chr $c ***"  
+			if [ -f chr$c.fa.gz ]; then
+      			 rm chr$c.fa.gz
+			fi
+			
+			wget -nv ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/Primary_Assembly/assembled_chromosomes/FASTA/chr$c.fa.gz 
+			echo "*** Decompressing reference sequence for chr $c ***"
+                        gzip -d chr$c.fa.gz
+		fi
+	done
+	cd ..
+
+	echo "************************************************"
+	echo "*** VCF file(s) are being downloaded ***"
+	echo "************************************************" 
+	
+
+	X_downloaded=0;  
+
+	for c in $CHROM
+	do	
+		if [[ $c == X* ]] && [[ $X_downloaded == "0" ]]
+                then
+			if [ -f ALL*chrX*.gz ]; then
+      			 rm ALL*chrX*.gz
+			fi
+			echo "*** Downloading VCF file for chr X ***"
+			wget -nv $FTP/phase1/analysis_results/integrated_call_sets/*chrX*.gz 
+			echo "*** Decompressing VCF file for chr X***"
+			gzip -d *chrX*.gz
+			X_downloaded=1  
+		elif [ $c == "Y-mal" ]
+	   	then
+			if [ -f ALL*chrY*.gz ]; then
+      			 rm ALL*chrY*.gz
+			fi
+			
+			echo "*** Downloading VCF file for chr Y ***"  
+			wget -nv $FTP/phase1/analysis_results/integrated_call_sets/*chrY.phase1*.gz 
+			echo "*** Decompressing VCF file for chr Y***" 
+			gzip -d *chrY.phase1*.gz
+		elif [[ $c != X* ]] 
+		then
+			if [ -f ALL*chr$c.*.gz ]; then
+      			 rm ALL*chr$c.*.gz
+			fi
+			
+			echo "*** Downloading VCF file for chr $c ***" 
+			wget -nv $FTP/phase1/analysis_results/integrated_call_sets/*chr$c.*.gz  
+			mkdir chr$c
+			echo "*** Decompressing VCF file for chr $c ***"
+			mv *chr$c.*.gz chr$c/
+			gzip -d chr$c/*chr$c.*.gz			
+		fi
+	done
+	cd ../GTRAC	
+}
+
+preprocess()
+{
+	cd ../Data/
+	echo "*******************************************************************************************************"
+        echo "*** Processing reference sequences of chromosomes X and Y  (dividing into regions PAR1/PAR2/nonPAR) ***"
+        echo "*******************************************************************************************************"
+
+	cd $REF
+		if [ -f chrX.fa ]; then
+           	../TGC/src/cut-ref chrX.fa chrXY-mal1.fa $START_X_MAL1 $END_X_MAL1
+           	../TGC/src/cut-ref chrX.fa chrXY-mal2.fa $START_X_MAL2 $END_X_MAL2
+                ../TGC/src/cut-ref chrX.fa chrX-mal.fa $START_X_MAL $END_X_MAL
+		else
+      		echo "No reference sequence for chromosome X - download before processing"
+		fi
+		if [ -f chrY.fa ]; then
+      		../TGC/src/cut-ref chrY.fa chrY-mal.fa $START_Y_MAL $END_Y_MAL
+     	else
+           	echo "No reference sequence for chromosome Y - download before processing"
+         fi
+	cd ..	
+	
+    echo "********************************************************************"
+    echo "*** Processing VCF of chromosome Y (removing NA21313 individual) ***"
+    echo "********************************************************************"
+
+    if [ -f ALL.chrY*.vcf ]; then
+     	mkdir chrY-mal
+       	cut -f-534 ALL.chrY*.vcf > chrY-mal/ALL.chrY.phase1_samtools_si.20101123.snps.low_coverage.genotypes.vcf
+    else
+        echo "No VCF file sequence for chromosome Y - download before processing"
+    fi
+
+	echo "*************************************************************************************************************************************"
+	echo "*** Processing VCF of chromosome X - selection of variants for female individuals and for male in regionns PAR1, PAR2 and non PAR ***"
+    echo "*************************************************************************************************************************************"   
+
+     if [ -f ALL.chrX*.vcf ]; then
+          ./TGC/src/processX ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf
+
+     	mkdir chrX-fem
+      	mv ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf-fem   chrX-fem/ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf-fem
+      
+      	mkdir chrXY-mal1
+      	mv ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf-mal1   chrXY-mal1/ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf-mal1
+      	
+      	mkdir chrX-mal
+      	mv ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf-mal  chrX-mal/ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf-mal
+      	
+      	mkdir chrXY-mal2
+      	mv ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf-mal2   chrXY-mal2/ALL.chrX.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf-mal2
+    else
+        echo "No VCF file sequence for chromosome X - download before processing"
+    fi
+    
+    echo "***************************************"
+    echo "*** All possible preprocessing done ***"
+    echo "***************************************"
+	cd ../GTRAC/                                                          
+}
+
+vcfmin()
+{
+    cd ../Data/
+	for c in $CHROM
+       		do
+		echo "**************************************************************************"
+        	echo "*** Creating  minimal VCF (*.min) for chromosome $c, from original VCF ***"
+        	echo "**************************************************************************"
+
+		if [ $c == "Y-mal" ]
+		then
+			../TGC/src/VCF2VCFmin chr$c/ALL.chrY.phase1*vcf $REF/chr$c.fa $START_Y_MAL
+		elif [ $c ==  "X-mal" ]; then
+			../TGC/src/VCF2VCFmin   chr$c/ALL.chrX.*vcf-mal  $REF/chr$c.fa  $START_X_MAL
+		elif [ $c == "XY-mal1" ]; then
+			../TGC/src/VCF2VCFmin chr$c/ALL.chrX.*vcf-mal1  $REF/chr$c.fa $START_X_MAL1
+		elif [ $c == "XY-mal2" ]; then
+              		../TGC/src/VCF2VCFmin chr$c/ALL.chrX.*vcf-mal2   $REF/chr$c.fa $START_X_MAL2
+		elif [ $c == "X-fem" ]; then
+              		../TGC/src/VCF2VCFmin chr$c/ALL.chrX.*vcf-fem  $REF/chrX.fa 
+		else
+			../TGC/src/VCF2VCFmin chr$c/ALL.chr$c.*vcf  $REF/chr$c.fa 
+		fi 
+	done	
+    cd ../GTRAC/
+}
+consensus()
+{
+	for c in $CHROM
+        do
+		echo "*******************************************************************************************************"
+        	echo "*** Creating consensus sequences for all individuals, for chromosome $c, from reference and VCF ***"
+        	echo "*******************************************************************************************************"
+
+		if [ $c == "Y-mal" ]
+		then
+			../TGC/src/VCF2FASTA-h chr$c/ALL.chrY.phase1*vcf.min  $REF/chr$c.fa  $START_Y_MAL
+		elif [ $c ==  "X-mal" ]; then
+			../TGC/src/VCF2FASTA-h chr$c/ALL.chrX.*vcf-mal.min $REF/chr$c.fa   $START_X_MAL
+		elif [ $c == "XY-mal1" ]; then
+			../TGC/src/VCF2FASTA-d chr$c/ALL.chrX.*vcf-mal1.min $REF/chr$c.fa  $START_X_MAL1
+		elif [ $c == "XY-mal2" ]; then
+               		../TGC/src/VCF2FASTA-d chr$c/ALL.chrX.*vcf-mal2.min $REF/chr$c.fa   $START_X_MAL2
+		elif [ $c == "X-fem" ]; then
+            		../TGC/src/VCF2FASTA-d chr$c/ALL.chrX.*vcf-fem.min  $REF/chrX.fa 
+		else
+			../TGC/src/VCF2FASTA-d  chr$c/ALL.chr$c.*vcf.min  $REF/chr$c.fa
+		fi 
+	done	
+}
+
+bv_vd()
+{
+	cd ../Data/
+	for c in $CHROM
+        do
+                echo "*************************************************************************************"
+                echo "*** Creating Variant Dictionary and the binary matrix H for all individuals, for chromosome $c ***"
+                echo "*************************************************************************************"
+
+                if [ $c == "Y-mal" ]
+                then
+                        cd chr$c
+			../../TGC/src/VCF2VDBV-h ALL.chrY.phase1*vcf.min  chrY-mal
+			          cd ..
+                elif [ $c ==  "X-mal" ]; then
+                        cd chr$c
+                        ../../TGC/src/VCF2VDBV-h ALL.chrX.*vcf-mal.min chrX-mal
+                        cd ..                
+                elif [ $c == "XY-mal1" ]; then
+                        cd chr$c
+                        ../../TGC/src/VCF2VDBV-d ALL.chrX.*vcf-mal1.min chrXY-mal1
+                        cd ..                
+                elif [ $c == "XY-mal2" ]; then
+                        cd chr$c
+                        ../../TGC/src/VCF2VDBV-d ALL.chrX.*vcf-mal2.min chrXY-mal2
+                        cd ..                               
+		elif [ $c == "X-fem" ]; then
+                        cd chr$c
+                        ../../TGC/src/VCF2VDBV-d ALL.chrX.*vcf-fem.min chrX-fem
+                        cd ..
+		else
+                        cd chr$c
+                        ../../TGC/src/VCF2VDBV-d ALL.chr$c.*vcf.min  chr$c
+			cd ..
+                fi
+        done
+	cd ../GTRAC/
+	
+}
+
+
+consensus_bv()
+{
+	for c in $CHROM
+        do
+                echo "*************************************************************************************************************************"
+                echo "*** Creating consensus sequences for all individuals, for chromosome $c, from reference, Variant Database and Byte Vectors ***"
+                echo "*************************************************************************************************************************"
+
+                if [ $c == "Y-mal" ]
+                then
+	                cd chr$c
+                        ../TGC/src/VDBV2FASTA ../$REF/chr$c.fa ALL.chrY.phase1*.vcf.min.vd $START_Y_MAL `ls *$chr$c.bv`
+                        cd ..
+                elif [ $c ==  "X-mal" ]; then
+                        cd chr$c
+                        ../TGC/src/VDBV2FASTA ../$REF/chr$c.fa ALL.chrX.*vcf-mal.min.vd $START_X_MAL `ls *$chr$c.bv`
+                        cd ..
+                elif [ $c == "XY-mal1" ]; then
+                        cd chr$c
+                        ../TGC/src/VDBV2FASTA ../$REF/chr$c.fa ALL.chrX.*vcf-mal1.min.vd $START_X_MAL1 `ls *$chr$c.bv`
+                        cd ..
+                elif [ $c == "XY-mal2" ]; then
+                        cd chr$c
+                        ../TGC/src/VDBV2FASTA ../$REF/chr$c.fa ALL.chrX.*vcf-mal2.min.vd $START_X_MAL2 `ls *$chr$c.bv`
+                        cd ..
+                elif [ $c == "X-fem" ]; then
+                        cd chr$c
+                        ../TGC/src/VDBV2FASTA ../$REF/chrX.fa ALL.chrX.*vcf-fem.min.vd 1 `ls *$chr$c.bv`
+                        cd ..
+                else
+                        cd chr$c
+                        ../src/VDBV2FASTA ../$REF/chr$c.fa ALL.chr$c*.*.vcf.min.vd 1 `ls *$chr$c.bv`
+                        cd ..
+                fi
+        done
+} 
+
+recreate_VCF()
+{
+        for c in $CHROM
+        do
+                echo "*******************************************************************************************************"
+                echo "*** Reconstructing VCF minimal file for chromosome $c from reference, Variant Database and Byte Vectors ***"
+                echo "*******************************************************************************************************"
+
+                if [ $c == "Y-mal" ]  
+                then
+			cd chr$c
+                      	../TGC/src/VDBV2VCFmin-h ../$REF/chr$c.fa ALL.chrY.phase1*vcf.min.vd Y $START_Y_MAL `ls *$chr$c.bv`
+                        cd ..
+                elif [ $c ==  "X-mal" ]; then
+                        cd chr$c
+                        ../TGC/src/VDBV2VCFmin-h ../$REF/chr$c.fa ALL.chrX.*vcf-mal.min.vd X $START_X_MAL `ls *$chr$c.bv`
+                        cd ..
+                elif [ $c == "XY-mal1" ]; then
+                        cd chr$c
+                        ../TGC/src/VDBV2VCFmin-d ../$REF/chr$c.fa ALL.chrX.*vcf-mal1.min.vd X $START_X_MAL1 `ls *$chr$c.bv`
+                        cd ..
+                elif [ $c == "XY-mal2" ]; then
+                        cd chr$c
+                        ../src/VDBV2VCFmin-d ../$REF/chr$c.fa ALL.chrX.*vcf-mal2.min.vd X $START_X_MAL2 `ls *$chr$c.bv`
+                        cd ..
+                elif [ $c == "X-fem" ]; then
+                        cd chr$c
+                        ../TGC/src/VDBV2VCFmin-d ../$REF/chrX.fa ALL.chrX.*vcf-fem.min.vd X 1 `ls *$chr$c.bv`
+                        cd ..
+                else
+                        cd chr$c
+                        ../TGC/src/VDBV2VCFmin-d ../$REF/chr$c.fa ALL.chr$c*.vcf.min.vd $c 1 `ls *$chr$c.bv`
+                        cd ..
+                fi
+        done
+
+	
+}
+
+compress_bv()
+{
+	cd ../Data/
+	for c in $CHROM
+        do
+		echo "************************************************************"
+                echo "*** Compressing the binary matrix H for chromosome $c  ***"
+                echo "************************************************************"
+          cd chr$c
+		mkdir compressed_files
+		mkdir compressed_files/phrase_params/
+		ls *chr$c.bv > chr$c.list
+		../../GTRAC/src/gtrac_comp chr$c chr$c.list		
+		cd ..
+	done
+	cd ../GTRAC/
+}
+
+decompress_bv()
+{
+	for c in $CHROM
+        do
+                echo "**************************************************************"                                           
+                echo "*** Decompression of rows/columns of H for chromosome $c  ***"                                    
+                echo "**************************************************************"                                           
+                 
+                cd chr$c                                                              
+                ../GTRAC/src/gtrac_decomp d list                                                                                         
+                cd ..
+        done
+
+}
+
+compress_vcf_light()
+{
+	cd ../Data/
+	for c in $CHROM
+        do
+                echo "****************************************************"                                           
+                echo "*** Compressing Variant Database for chromosome $c  ***"                                    
+                echo "****************************************************"                                           
+                cd chr$c
+                ../../TGC/src/tgc_db c ALL.chr*.vd compressed_files/chr$c.variant_dict 
+                cd ..                                                                                      
+	done
+	cd ../GTRAC/
+}
+
+decompress_vcf_light()
+{
+	for c in $CHROM
+        do
+                echo "****************************************************"        
+                echo "*** Decompressing Variant Database for chromosome $c  ***"       
+                echo "****************************************************"                                           
+                cd chr$c
+                ../src/tgc_db d chr$c.tgc_db chr$c.vd.ori
+                cd ..   
+        done
+
+}
+
+#Process the arguments
+while getopts abcdefghijkl opt
+do
+   case "$opt" in
+	h) usage; exit 1;;
+	a) download;; 
+	b) preprocess;;
+	c) vcfmin;;
+	d) consensus;;
+	e) bv_vd;;
+	f) consensus_bv;;
+	g) recreate_VCF;;
+	i) compress_bv;;
+	j) decompress_bv;;
+	k) compress_vcf_light;;
+	l) decompress_vcf_light;; 
+	?) usage; exit;;
+   esac
+done
+
+

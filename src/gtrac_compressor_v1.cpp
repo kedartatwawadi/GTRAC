@@ -29,9 +29,10 @@
 #define HASH_LEN2			2
 #define HT_FACTOR			2
 
-#define phraseEndDir "bv"
-#define phraseLiteralDir "bv1"
-#define phraseSourceSizeDir "bv2"
+#define phraseEndDir "compressed_files/phrase_end"
+#define phraseLiteralDir "compressed_files/phrase_C"
+#define phraseSourceSizeDir "compressed_files/phrase_s"
+#define phraseParmsDir "compressed_files/phrase_params"
 
 using namespace std;
 using namespace rsdic;
@@ -396,7 +397,7 @@ void parse_file(unsigned char * d, int file_id)
 	int best_id;
 	
 	string filename = file_names[file_id];
-	ofstream out_file(("log_folder_3/log_" + filename + ".txt"), ios::out | ios::binary | ios::trunc );
+	ofstream out_file(( (string)phraseParmsDir+"/"+ filename + ".parms"), ios::out | ios::binary | ios::trunc );
 	
 
 	bool phrase[file_size];// = {false};//(false);
@@ -568,7 +569,7 @@ void compress(void)
 void output_bv_files(RSDic* succint_bv_dict, string write_dir)
 {
 	filebuf fb;
-	string filename = (write_dir + "_single_file" + ".bv"); 
+	string filename = (write_dir  + ".succint_bv"); 
 	fb.open(filename.c_str(),std::ios::out);
 	ostream os(&fb);
 
