@@ -55,10 +55,13 @@ We will go into the details of the datasets we used, and also more details regar
 ### Datasets
 We used two large datasets: 1000 Genome Project Phase 1 *H.Sapiens* dataset and the 1001 Genomes *A.Thaliana* dataset.
 
-1. **H. Sapiens Dataset**: The 1000 Genome Project phase 1, can be downloaded from:
-..1. Link to [Reference FASTA Files]( ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/Primary_Assembly/assembled_chromosomes/FASTA/) for all the chromosomes
-..2. Link to [VCF files](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/analysis_results/integrated_call_sets/) for all the chromosomes
-2. **A.Thaliana dataset**: The 1001 GP dataset can be obtained from 4 different subprojects.
-..1. Link to [Reference FASTA files](ftp://ftp.arabidopsis.org//Sequences/whole_chromosomes/)
-..2. The VCF files can be downloaded from the 4 different subprojects:
+#### H. Sapiens Dataset 
+The 1000 Genome Project phase 1, can be downloaded from:
+1. Link to [Reference FASTA Files](ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/Primary_Assembly/assembled_chromosomes/FASTA/) for all the chromosomes
+2. Link to [VCF files](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/analysis_results/integrated_call_sets/) for all the chromosomes
+
+#### A.Thaliana dataset 
+The 1001 GP dataset can be obtained from 4 different subprojects.
+1. Link to [Reference FASTA files](ftp://ftp.arabidopsis.org//Sequences/whole_chromosomes/)
+2. The VCF files can be downloaded from the 4 different subprojects:
 
