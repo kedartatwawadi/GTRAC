@@ -29,7 +29,7 @@ The shell script does the following thigs:
 2. Uses tools from **TGC** repo to process the VCF files and convert it into the (H,VD) representation
 3. Uses GTRAC compressor to compress the biinary matrix H  
 
-### Local Decompression Test
+### Test random access
 GTRAC supports per-variant extraction (column-wise extraction), and per-haplotype extraction (row-wise extraction) from the compressed variant dataset. You can run the following examples to test these features:
 ```bash
 # Move to the correct directory
@@ -49,4 +49,19 @@ cd ../Data/chr22
 
 ```
 
+## Implementation Details
+We will go into the details of the datasets we used, and also more details regarding the compression and the decompression techniques.
+
+### Datasets
+We used two large datasets: 1000 Genome Project Phase 1 *H.Sapiens* dataset and the 1001 Genomes *A.Thaliana* dataset.
+
+1. **H. Sapiens Dataset**: The 1000 Genome Project phase 1, can be downloaded from:
+
+..1. Link to [Reference FASTA Files]( ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/Primary_Assembly/assembled_chromosomes/FASTA/)
+..2. Link to [VCF files](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/analysis_results/integrated_call_sets/)
+
+2. **A.Thaliana dataset**: The 1001 GP dataset can be obtained from 4 different subprojects.
+
+..1. Link to [Reference FASTA files](ftp://ftp.arabidopsis.org//Sequences/whole_chromosomes/)
+..2. The VCF files can be downloaded from the 4 different subprojects:
 
