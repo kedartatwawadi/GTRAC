@@ -58,12 +58,18 @@ We used two large datasets: 1000 Genome Project Phase 1 *H.Sapiens* dataset and 
 ##### H. Sapiens Dataset 
 The 1000 Genome Project phase 1, can be downloaded from:
 
-1. Link to [Reference FASTA Files](ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/Primary_Assembly/assembled_chromosomes/FASTA/) for all the chromosomes
-2. Link to [VCF files](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/analysis_results/integrated_call_sets/) for all the chromosomes
+1. Link to the Reference files for all the chromosomes:  <ftp://ftp.ncbi.nlm.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/Primary_Assembly/assembled_chromosomes/FASTA/>
+2. Link to the VCF files for all the chromosomes <ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/analysis_results/integrated_call_sets/>
 
 ##### A.Thaliana dataset 
 The 1001 GP dataset can be obtained from 4 different subprojects.
 
-1. Link to [Reference FASTA files](ftp://ftp.arabidopsis.org//Sequences/whole_chromosomes/)
+1. Link to the Reference FASTA files for all chromosomes : <ftp://ftp.arabidopsis.org//Sequences/whole_chromosomes/>
 2. The VCF files can be downloaded from the 4 different subprojects:
+  1. Link 1
+  2. Link 2
+  3. Link 3
+  4. Link 4
+
+The datasets are the same as the ones used by [TGC](sun.aei.polsl.pl/tgc/).
 
