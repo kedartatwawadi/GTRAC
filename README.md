@@ -75,4 +75,14 @@ The datasets are the same as the ones used by [TGC](sun.aei.polsl.pl/tgc/).
 
 ### Compression Details
 ###### Variant Dictionary compression
-The variant dictionary represents an indexed list of all the variants present in the dataset. For the 1000 GP dataset, the variant dictionary consisted of 4% to 5% of the memory usage of the (H,VD) representation. 
+The variant dictionary represents an indexed list of all the variants present in the dataset. As the variant dictionary typically consists of a small portion (4% to 5% for the 1000GP dataset) of the memory usage of the (H,VD) representation, we concentrate our efforts on the H matrix compression. We use the same compression technique as [TGC](sun.aei.polsl.pl/tgc/) to compress the variant dictionary. The basic idea is to compress each type of variant (SNP, insertion, deletion and SV). For each variant type, the variant positions are differentially encoded ( for eg: distances between consecutive SNPs) are stored. For every SNP, the substituting symbol is stored, for INS the length and the inserted symbols are stored etc. All these values are encoded using a variant of arithmetic coding with appropriate contextual models.
+More details can be found in the the [TGC](sun.aei.polsl.pl/tgc/) paper.
+
+###### Binary Matrix Compression
+The binary matrix compression implementation is rather slow right now, as we have concentrated on the local decompression speeds, which is generally the more important factor. For the 1000GP dataset, the compression algorithm required 15 to 30 mins for the compression of the variant information corresponding to a chromosome.
+
+We experimented with different values of parameter K for forming the symbol matrix. For K being multiples of 8, it was observed that memory handling is much easier. The random access is also effectively faster due to the byte-aligned memory handling. For K=16, the overall archival memory usage is similar to K=8. K=16 results in faster compression and haplotype-extraction (with an increase of almost a factor of 2), however the single-variant extraction times remain almost the same. This is expected as our haplotype substring extraction algorithm extracts the sub-string a symbol at a time Thus, increase in symbol size results in lesser symbols to be extracted for a sub-string. As K value increases, the memory requirement to represent the mismatching symbol C increases, however the phrase-type parameter representation requires less amount of memory. Overall, both of K=8 and K=16 perform quite well.
+
+
+
+
