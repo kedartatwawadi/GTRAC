@@ -73,3 +73,6 @@ The 1001 GP dataset can be obtained from 4 different subprojects.
 
 The datasets are the same as the ones used by [TGC](sun.aei.polsl.pl/tgc/).
 
+### Compression Details
+###### Variant Dictionary compression
+The variant dictionary represents an indexed list of all the variants present in the dataset. For the 1000 GP dataset, the variant dictionary consisted of 4% to 5% of the memory usage of the (H,VD) representation. 
