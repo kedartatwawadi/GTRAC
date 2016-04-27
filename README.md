@@ -66,10 +66,7 @@ The 1001 GP dataset can be obtained from 4 different subprojects.
 
 1. Link to the Reference FASTA files for all chromosomes : <ftp://ftp.arabidopsis.org//Sequences/whole_chromosomes/>
 2. The VCF files can be downloaded from the 4 different subprojects:
-  1. Link 1
-  2. Link 2
-  3. Link 3
-  4. Link 4
+
 
 The datasets are the same as the ones used by [TGC](sun.aei.polsl.pl/tgc/).
 
