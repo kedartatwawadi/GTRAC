@@ -2,20 +2,14 @@
 #include <fstream> 
 #include <stdio.h>
 #include <string.h>
-#include <string>
 #include <iterator>
 #include <vector>
-#include <algorithm>
 #include <iostream>
-#include <map>
-#include <set>
-#include <list>
 #include <utility>
 #include <sstream>
 #include <ctime>
 #include <ratio>
 #include <chrono>
-
 
 #include "port.h"
 #include "rsdic/RSDic.hpp"

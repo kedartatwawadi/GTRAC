@@ -1,14 +1,10 @@
 #include <iostream>     // std::cout, std::ostream, std::ios
 #include <fstream> 
 #include <stdio.h>
-#include <string.h>
 #include <string>
 #include <iterator>
 #include <vector>
-#include <algorithm>
 #include <iostream>
-#include <map>
-#include <set>
 #include <thread>
 #include <list>
 #include <utility>
@@ -37,7 +33,6 @@
 using namespace std;
 using namespace rsdic;
 
-//typedef int file_id_t;
 typedef short file_id_t;
 
 
@@ -65,7 +60,6 @@ RSDic* phraseLiteral;
 RSDic* phraseSourceSize;
 
 vector<string> file_names;
-set<string> file_names_decompress;
 
 int pos;
 unsigned char ref_literal;

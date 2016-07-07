@@ -9,11 +9,11 @@ all: gtrac_comp gtrac_decomp
 .cpp.o:
 	$(CC) $(CFLAGS) $(OMPFLAGS) -c $<
 
-gtrac_comp: gtrac_compressor_v1.o
-	$(CC) $(LFLAGS) -o $@ gtrac_compressor_v1.o -lRSDic
+gtrac_comp: gtrac_compressor.o
+	$(CC) $(LFLAGS) -o $@ gtrac_compressor.o -lRSDic
 
-gtrac_decomp: gtrac_decompressor_v1.o
-	$(CC) $(LFLAGS) $(OMPFLAGS) -o $@ gtrac_decompressor_v1.o -lRSDic
+gtrac_decomp: gtrac_decompressor.o
+	$(CC) $(LFLAGS) $(OMPFLAGS) -o $@ gtrac_decompressor.o -lRSDic
 
 clean:
 	-rm *.o
