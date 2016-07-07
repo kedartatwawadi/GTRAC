@@ -80,25 +80,11 @@ void store_start(string &name);
 inline unsigned long hash_fun(unsigned char *p, int pos, int ver);
 void insert_into_ht(file_id_t file_id, unsigned char *p, int ver);
 inline pair<int, int> find_match(unsigned char *p, int pos, int ver);
-inline int pop_count(unsigned int x);
 void output_all_succint_bv_files();
 
 // ***************************************************************
 // Range coder-relared functions
 // ***************************************************************
-
-// ***************************************************************
-void save_byte(int x)
-{
-	putc(x, rc_file);
-}
-
-// ***************************************************************
-int read_byte()
-{
-	int a = getc(rc_file);
-	return a;
-}
 
 void createBitVector(bool* phrase, int file_id )
 {
@@ -123,22 +109,6 @@ void createSourceSizeBitVector(vector<bool> phrase_source_size, int file_id )
 	for( int j = 0;j < phrase_source_size.size(); j++)
 		bvb.PushBack( phrase_source_size[j] );
 	bvb.Build(phraseSourceSize[file_id]);
-}
-
-// ***************************************************************
-// Utility functions
-// ***************************************************************
-
-// **************************************************************
-// Calculate number of set bits
-inline int pop_count(unsigned int x)
-{
-	int cnt = 0;
-	
-	for(; x; ++cnt)
-		x &= x-1;
-		
-	return cnt;
 }
 
 
@@ -366,10 +336,6 @@ bool prepare_files(string output_name)
 // Close output files
 void close_files(void)
 {
-	if(rc_file)
-		fclose(rc_file);
-	if(desc_file)
-		fclose(desc_file);
 	if(out_file)
 		fclose(out_file);
 }
@@ -405,18 +371,6 @@ void parse_file(unsigned char * d, int file_id)
 	//	cout << match.first << ", " << match.second << endl;
 		if(match.second < HASH_LEN1 + HASH_STEP1 - 1)
 			match = find_match(d, pos, 2);
-		
-		
-		// if(match.first < 0)
-		// {
-		// 	store_literal(d[pos]);
-		// 	pos++;
-		// }
-		// else
-		// {
-			//cout << "it is a match" << endl;
-			//if(match.second > MAX_MATCH_LEN)
-			//	match.second = MAX_MATCH_LEN;
 	
 			pos += match.second;
 			// Get the phrase index to be stored.
@@ -435,8 +389,6 @@ void parse_file(unsigned char * d, int file_id)
 			pos++;
 			phrase[pos] = true;
 			
-			//cerr <<  match.first <<  match.second <<  phrase_index << d[pos] << endl;;
-			//fprintf(fileptr, "%d %d %d\n", match.first, phrase_index,d[pos]);
 			/******************************/
 			// WRITE SOURCE
 			/******************************/
@@ -462,7 +414,6 @@ void parse_file(unsigned char * d, int file_id)
 
 			out_file.write( (char*)&d[pos], sizeof( char ) );
 			pos++; // gear up for the next search;
-		// }
 	}
 	
 	createBitVector(phrase,file_id);
@@ -511,47 +462,6 @@ void compress(void)
 	}
 	
 	output_all_succint_bv_files();
-	
-	//filebuf fb;
-  	
-	// for (int i = 0 ; i < no_files ; i++)
-	// {
-	// 	filebuf fb;
-	// 	string filename = file_names[i];
-	// 	filename = ("bv/bv_" + filename + ".bv"); 
-	// 	fb.open(filename.c_str(),std::ios::out);
-	// 	cout << "wrote file: " <<  i <<  endl;
-	// 	ostream os(&fb);
-	// 	phraseEnd[i].Save(os);
-	// 	fb.close();
-	// }
-
-
-	// for (int i = 0 ; i < no_files ; i++)
-	// {
-	// 	filebuf fb;
-	// 	string filename = file_names[i];
-	// 	filename = ("bv1/bv1_" + filename + ".bv"); 
-	// 	fb.open(filename.c_str(),std::ios::out);
-	// 	cout << "wrote file: " <<  i <<  endl;
-	// 	ostream os(&fb);
-	// 	phraseLiteral[i].Save(os);
-	// 	fb.close();
-	// }
-
-	// for (int i = 0 ; i < no_files ; i++)
-	// {
-	// 	filebuf fb;
-	// 	string filename = file_names[i];
-		
-	// 	filename = ("bv2/bv2_" + filename + ".bv"); 
-	// 	fb.open(filename.c_str(),std::ios::out);
-	// 	cout << "wrote file: " <<  i <<  endl;
-	// 	ostream os(&fb);
-	// 	phraseSourceSize[i].Save(os);
-	// 	fb.close();
-	// }
-
 }
 
 
