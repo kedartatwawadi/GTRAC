@@ -67,8 +67,6 @@ RSDic* phraseSourceSize;
 vector<string> file_names;
 set<string> file_names_decompress;
 
-
-
 int pos;
 unsigned char ref_literal;
 int cur_id_file;
