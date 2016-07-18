@@ -5,7 +5,6 @@ OMPFLAGS = -fopenmp
 
 all: gtrac_comp gtrac_decomp
 
-
 .cpp.o:
 	$(CC) $(CFLAGS) $(OMPFLAGS) -c $<
 

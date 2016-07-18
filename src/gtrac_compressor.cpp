@@ -74,8 +74,6 @@ void close_files(void);
 void prepare_ht(void);
 unsigned char *read_file(string &name);
 void compress(void);
-void parse_file(unsigned char *d);
-void store_start(string &name);
 
 inline unsigned long hash_fun(unsigned char *p, int pos, int ver);
 void insert_into_ht(file_id_t file_id, unsigned char *p, int ver);
@@ -93,7 +91,6 @@ void createBitVector(bool* phrase, int file_id )
 		bvb.PushBack( phrase[j] );
 	bvb.Build(phraseEnd[file_id]);
 }
-
 
 void createLiteralBitVector(vector<bool> phrase_literal, int file_id )
 {
@@ -341,10 +338,10 @@ void close_files(void)
 }
 
 
+
 // ***************************************************************
 // Compression functions
 // ***************************************************************
-
 
 // ***************************************************************
 void parse_file(unsigned char * d, int file_id)
@@ -425,6 +422,8 @@ void parse_file(unsigned char * d, int file_id)
 
 // ***************************************************************
 // The actual tgc compression
+// ***************************************************************
+
 void compress(void)
 {
 	unsigned char *d; // represents the data file

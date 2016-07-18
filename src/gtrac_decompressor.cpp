@@ -333,20 +333,6 @@ void extractColumn(int column_no )
 // ***************************************************************
 void extractLong(int file_id,int start,int len)
 {
-	// int init_p = phraseEnd[file_id].Rank(start,true);
-	// int end_p = phraseEnd[file_id].Rank(start+len-1,true);
-	// int factor = 4;
-	// block_data.resize(factor);
-	// data.resize(0);
-
-	// #pragma omp parallel for
-	// for( int i = 0; i < factor; i++)
-	// {
-	// 	int len_block = len/factor;
-	// 	//block_data[i].resize(len_block);
-	// 	extract_block(file_id, start+i*len_block, len_block,i);
-	// 	data.insert(data.end(), block_data[i].begin() , block_data[i].end() );
-	// }
 
 	int factor = number_of_blocks;
 	block_data.resize(factor);
