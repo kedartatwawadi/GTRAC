@@ -4,15 +4,14 @@
 #include <string>
 #include <iterator>
 #include <vector>
-#include <iostream>
 #include <thread>
 #include <list>
 #include <utility>
-#include <thread>
 
 #include "port.h"
 #include "rsdic/RSDic.hpp"
 #include "rsdic/RSDicBuilder.hpp"
+#include "input_data.h"
 
 //#define TURN_OFF_OFFSETS
 #define MIN_MATCH_LEN		5
@@ -42,22 +41,23 @@ FILE *out_file;			// decompressed file
 file_id_t *ht1, *ht2;   // Hash Tables
 file_id_t *ht_zeros1, *ht_zeros2; // I dont know what is this.
 
-unsigned int no_files;							// no. of files to compress
+// unsigned int no_files;							// no. of files to compress
 unsigned long long ht_size1, ht_size2;			// size of hash table
 unsigned long ht_slots1, ht_slots2;				// no. of slots in HT
 unsigned long ht_slot_size_exp;					// size of hast table for each location
 unsigned long ht_slot_size_mask;				// size of hast table for each location
 unsigned long ht_slot_size;						// size of slot of hash table
-int file_size;							// size of file
+// int file_size;							// size of file
 
 vector<unsigned char*> data;
+input_data gtrac_input;
 
 RSDicBuilder bvb;
 RSDic* phraseEnd;
 RSDic* phraseLiteral;
 RSDic* phraseSourceSize;
 
-vector<string> file_names;
+// vector<string> file_names;
 
 int pos;
 unsigned char ref_literal;
@@ -84,6 +84,7 @@ void output_all_succint_bv_files();
 
 void createBitVector(bool* phrase, int file_id )
 {
+	int file_size = gtrac_input.get_file_size();
 	bvb.Clear();	
 	for( int j = 0;j < file_size; j++)
 		bvb.PushBack( phrase[j] );
@@ -129,6 +130,8 @@ inline unsigned long hash_fun(unsigned char *p, int pos, int ver)
 // ***************************************************************
 inline pair<int, int> find_match(unsigned char *p, int pos, int ver)
 {
+
+	int file_size = gtrac_input.get_file_size();
 	
 	int best_id  = -1;
 	int best_len = -1;
@@ -201,6 +204,8 @@ inline pair<int, int> find_match(unsigned char *p, int pos, int ver)
 // ***************************************************************
 void insert_into_ht(file_id_t file_id, unsigned char *p, int ver)
 {
+	int file_size = gtrac_input.get_file_size();
+
 	unsigned int n_slot = 0;
 	unsigned long long off = 0;
 	
@@ -241,6 +246,9 @@ void insert_into_ht(file_id_t file_id, unsigned char *p, int ver)
 void prepare_ht(void)
 {
 	// set the appropriate numbet of hashtable slots
+	int file_size = gtrac_input.get_file_size();
+	int no_files  = gtrac_input.get_num_files();
+
 	for(ht_slot_size_exp = 5; no_files * HT_FACTOR > (1u << ht_slot_size_exp); ht_slot_size_exp++);
 
 	ht_slot_size      = 1u << ht_slot_size_exp;
@@ -278,6 +286,8 @@ void prepare_ht(void)
 // ***************************************************************
 unsigned char* read_file(string &name)
 {
+	int file_size = gtrac_input.get_file_size();
+
 	FILE *in = fopen(name.c_str(), "r");
 	if(!in)
 	{
@@ -308,10 +318,14 @@ unsigned char* read_file(string &name)
 // Prepare output files
 bool prepare_files(string output_name)
 {
+	int num_files = gtrac_input.get_num_files();
+	int file_size = gtrac_input.get_file_size();
+
+
 	// Create the vectors to store the phrase endings
-	phraseEnd = new RSDic[no_files];
-	phraseLiteral = new RSDic[no_files];
-	phraseSourceSize = new RSDic[no_files];
+	phraseEnd = new RSDic[num_files];
+	phraseLiteral = new RSDic[num_files];
+	phraseSourceSize = new RSDic[num_files];
 
 	// Always true for the reference vector, as we are storing it directly.
 	for( int j = 0;j < file_size; j++)
@@ -338,8 +352,11 @@ void close_files(void)
 // ***************************************************************
 void parse_file(unsigned char * d, int file_id)
 {
+	vector<string> file_names = gtrac_input.get_file_names();
+	int num_files = gtrac_input.get_num_files();
+	int file_size = gtrac_input.get_file_size();
+
 	cout << "Parsing file id: " << file_id << endl;
-	int n_files = data.size();
 	int best_len;
 	int best_id;
 	
@@ -419,8 +436,10 @@ void parse_file(unsigned char * d, int file_id)
 void compress(void)
 {
 	unsigned char *d; // represents the data file
+	vector<string> file_names = gtrac_input.get_file_names();
+	int num_files = gtrac_input.get_num_files();
 	
-	for(int i = 0; i < file_names.size(); ++i) // iterating over files
+	for(int i = 0; i < num_files; ++i) // iterating over files
 	{
 		// If we are not able to open the file the move ahead to the next one
 		// Also checks if the file sizes are consistent
@@ -461,12 +480,14 @@ void compress(void)
 // ***************************************************************
 void output_bv_files(RSDic* succint_bv_dict, string write_dir)
 {
+	int num_files = gtrac_input.get_num_files();
+
 	filebuf fb;
 	string filename = (write_dir  + ".succint_bv"); 
 	fb.open(filename.c_str(),std::ios::out);
 	ostream os(&fb);
 
-	for (int i = 0 ; i < no_files ; i++)
+	for (int i = 0 ; i < num_files ; i++)
 	{
 		cout << "wrote file: " <<  i <<  endl;
 		succint_bv_dict[i].Save(os);
@@ -488,61 +509,23 @@ void output_all_succint_bv_files()
 // ***************************************************************
 // Main program
 // ***************************************************************
-
-// ***************************************************************
-// Check parameters, input files etc.
-bool check_data(int argc, char *argv[])
-{
-	if((argc < 2))
-	{
-		cout << "Usage: tgc output_file_prefix [list_file_name]\n";
-		cout << "  list_file_name - name of the file with the list of files to compress\n";
-		return false;
-	}
-
-	ifstream inf(argv[2]);
-	istream_iterator<string> inf_iter(inf);
-	file_names.assign(inf_iter, istream_iterator<string>());
-
-	no_files = file_names.size();
-	//no_files = 20;
-    
-	if(!no_files)
-	{
-		cout << "There are no files to process\n";
-		return false;
-	}
-
-	
-	// Check size of the first file - it is assummed that all files have the same size!
-	FILE *in = fopen(file_names[0].c_str(), "rb");
-	if(!in)
-	{
-		cout << "The reference file " << file_names[0] << " does not exist\n";
-		return false;
-	}
-
-	fseek(in, 0, SEEK_END);
-	file_size = (int) ftell(in);
-	fclose(in);
-	
-	return true;
-}
-
-// ***************************************************************
-// ***************************************************************
 int main(int argc, char *argv[])
 {
 	clock_t t1 = clock();
 
-	if(!check_data(argc, argv))
-		return 0;
-		
+	if((argc < 2))
+	{
+		cout << "Usage: gtrac_comp output_file_prefix [list_file_name]\n";
+		cout << "  list_file_name - name of the file with the list of files to compress\n";
+		return false;
+	}
+
+	// initialize the input_data class object
+	gtrac_input.check_data(argv[2]);
+
 	if(!prepare_files(string(argv[1])))
 		return 0;
 	
-
-
 	cout << "Initializing\n";
 	prepare_ht();
 
