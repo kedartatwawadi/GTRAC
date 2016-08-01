@@ -386,7 +386,7 @@ compress_bv()
 		mkdir output_gtrac
 		mkdir compressed_files/phrase_params/
 		ls *chr$c.bv > chr$c.list
-		../../GTRAC/build/src/gtrac_comp chr$c chr$c.list		
+		../../GTRAC/build/gtrac_comp chr$c chr$c.list		
 		cd ..
 	done
 	cd ../GTRAC/
