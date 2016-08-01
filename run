@@ -386,7 +386,7 @@ compress_bv()
 		mkdir output_gtrac
 		mkdir compressed_files/phrase_params/
 		ls *chr$c.bv > chr$c.list
-		../../GTRAC/src/gtrac_comp chr$c chr$c.list		
+		../../GTRAC/build/src/gtrac_comp chr$c chr$c.list		
 		cd ..
 	done
 	cd ../GTRAC/
@@ -404,12 +404,12 @@ decompress_bv()
                  
                 cd chr$c
 		pwd                                                              
-                ../../GTRAC/src/gtrac_decomp f chr$c.list 100
-                ../../GTRAC/src/gtrac_decomp f chr$c.list 1000
-                ../../GTRAC/src/gtrac_decomp f chr$c.list 2000
-                ../../GTRAC/src/gtrac_decomp c chr$c.list 100
-                ../../GTRAC/src/gtrac_decomp c chr$c.list 200
-                ../../GTRAC/src/gtrac_decomp c chr$c.list 300
+                ../../GTRAC/build/gtrac_decomp f chr$c.list 100
+                ../../GTRAC/build/gtrac_decomp f chr$c.list 1000
+                ../../GTRAC/build/gtrac_decomp f chr$c.list 2000
+                ../../GTRAC/build/gtrac_decomp c chr$c.list 100
+                ../../GTRAC/build/gtrac_decomp c chr$c.list 200
+                ../../GTRAC/build/gtrac_decomp c chr$c.list 300
                                                                                          
                 cd ..
         done

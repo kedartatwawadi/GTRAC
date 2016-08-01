@@ -9,5 +9,5 @@ include_directories(include/)
 
 add_executable(gtrac_compressor src/gtrac_compressor.cpp)
 add_executable(gtrac_decompressor src/gtrac_decompressor.cpp) 
-target_link_libraries(gtrac_compressor ${PROJECT_LINK_LIBS})
-target_link_libraries(gtrac_decompressor ${PROJECT_LINK_LIBS})
+target_link_libraries(gtrac_comp ${PROJECT_LINK_LIBS})
+target_link_libraries(gtrac_decomp ${PROJECT_LINK_LIBS})
