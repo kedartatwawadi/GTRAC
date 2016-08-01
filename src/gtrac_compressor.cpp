@@ -36,8 +36,6 @@ using namespace rsdic;
 typedef short file_id_t;
 
 
-FILE *rc_file;			// output file (range coder compressed)
-FILE *desc_file;		// output file (description of compressed data)
 FILE *out_file;			// decompressed file
 
 // file_id_t is a short typedef
@@ -310,13 +308,7 @@ unsigned char* read_file(string &name)
 // Prepare output files
 bool prepare_files(string output_name)
 {
-	
-	rc_file   = fopen((output_name + ".tgc_data").c_str(), "wb");
-	desc_file = fopen((output_name + ".tgc_desc").c_str(), "wt");
-
-	fprintf(desc_file, "%d\n", file_size);
 	// Create the vectors to store the phrase endings
-	
 	phraseEnd = new RSDic[no_files];
 	phraseLiteral = new RSDic[no_files];
 	phraseSourceSize = new RSDic[no_files];
@@ -326,7 +318,7 @@ bool prepare_files(string output_name)
 		bvb.PushBack( true );
 	bvb.Build(phraseEnd[0]);
 	
-	return rc_file && desc_file;
+	return 0;
 }
 
 // ***************************************************************
