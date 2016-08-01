@@ -18,7 +18,9 @@ cd ../..
 
 # Build GTRAC
 cd GTRAC
-cd src
+mkdir build
+cd build
+cmake ..
 make
 cd ..
 
