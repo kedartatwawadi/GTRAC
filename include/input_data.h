@@ -26,6 +26,7 @@ private:
 	int num_files;
 	vector<string> file_names;
 	int file_size;
+	unsigned char* reference_file;
 
 	// vector<unsigned char*> data;
 };

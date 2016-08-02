@@ -30,11 +30,12 @@ RSDic* phraseEnd;
 RSDic* phraseLiteral;
 RSDic* phraseSourceSize;
 
-int no_files;
+input_data gtrac_input;
+// int no_files;
 int number_of_blocks = 4;
-vector<string> file_names;
-unsigned char* reference_file;
-int file_size;
+// vector<string> file_names;
+// unsigned char* reference_file;
+// int file_size;
 vector<unsigned char> data;
 vector<vector<unsigned char> > block_data;
 vector<unsigned char> column_data;
@@ -87,11 +88,11 @@ unsigned char* read_file(string &name)
 
 	// Check size
 	fseek(in, 0, SEEK_END);
-	file_size = ftell(in);
+	int size_of_file = ftell(in);
 	fseek(in, 0, SEEK_SET);
 
-	unsigned char *d = new unsigned char[file_size];
-	fread(d, 1, file_size, in);
+	unsigned char *d = new unsigned char[size_of_file];
+	fread(d, 1, size_of_file, in);
 	fclose(in);
 
 	return d;
@@ -443,11 +444,12 @@ int main(int argc, char** argv)
 		test_setup = true;
 	
 
-	readFileNames(argv[2]);
+    gtrac_input.check_data(argv[2]);
+	//readFileNames(argv[2]);
 	phraseEnd = readSuccintBitVectors(phraseEndDir);
 	phraseLiteral = readSuccintBitVectors(phraseLiteralDir);
 	phraseSourceSize = readSuccintBitVectors(phraseSourceSizeDir);
-	readReferenceVector();
+	//readReferenceVector();
 
 	// if( test_setup ) setup_testing(file_id, start, len);
 	
