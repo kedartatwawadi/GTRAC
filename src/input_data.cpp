@@ -1,30 +1,6 @@
 #include "input_data.h"
 using namespace std;
 
-// ***************************************************************
-// generic function to read a file
-// ***************************************************************
-unsigned char* read_file(string &name)
-{
-	FILE *in = fopen(name.c_str(), "r");
-	if(!in)
-	{
-		cout << "No file!: " << name << "\n";
-		return NULL;
-	}
-
-	// Check size
-	fseek(in, 0, SEEK_END);
-	int size_of_file = ftell(in);
-	fseek(in, 0, SEEK_SET);
-
-	unsigned char *d = new unsigned char[size_of_file];
-	fread(d, 1, size_of_file, in);
-	fclose(in);
-
-	return d;
-}
-
 
 // ***************************************************************
 // Default Constructor
@@ -47,7 +23,6 @@ input_data::input_data(char* path){
 bool input_data::check_data(char* path)
 {
 	
-
 	ifstream inf(path);
 	istream_iterator<string> inf_iter(inf);
 	file_names.assign(inf_iter, istream_iterator<string>());
@@ -71,10 +46,11 @@ bool input_data::check_data(char* path)
 
 	fseek(in, 0, SEEK_END);
 	file_size = (int) ftell(in);
-	fclose(in);
+	fseek(in, 0, SEEK_SET);
 
-	string reference_filename = file_names[0];
-	reference_file = read_file(reference_filename);
+    reference_file = new unsigned char[file_size];
+    fread(reference_file, 1, file_size, in);
+    fclose(in);
 	
 	return true;
 }

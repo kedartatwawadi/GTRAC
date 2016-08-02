@@ -15,6 +15,7 @@
 #include "rsdic/RSDic.hpp"
 #include "rsdic/RSDicBuilder.hpp"
 #include "omp.h"
+#include "input_data.h"
 
 #define phraseEndDir "compressed_files/phrase_end"
 #define phraseLiteralDir "compressed_files/phrase_C"
@@ -46,12 +47,14 @@ vector<unsigned char> column_data;
 RSDic* readSuccintBitVectors(string bvDictDir)
 {
 	//cout << bvDictDir << endl;
-	RSDic* bvDict = new RSDic[no_files];
+	int num_files = gtrac_input.get_num_files();
+	
+    RSDic* bvDict = new RSDic[num_files];
 	filebuf fb;
 	string filename = (bvDictDir + ".succint_bv"); 
 	fb.open(filename.c_str(),std::ios::in);
 	
-	for (int i = 0 ; i < no_files ; i++)
+	for (int i = 0 ; i < num_files ; i++)
 	{
 		
 		istream is(&fb);
@@ -65,13 +68,13 @@ RSDic* readSuccintBitVectors(string bvDictDir)
 // ***************************************************************
 // basic function to make note of all the files
 // ***************************************************************
-void readFileNames(char* listfile_name)
-{
-	ifstream inf(listfile_name);
-	istream_iterator<string> inf_iter(inf);
-	file_names.assign(inf_iter, istream_iterator<string>());
-	no_files = file_names.size();
-}
+//  void readFileNames(char* listfile_name)
+//  {
+//  	ifstream inf(listfile_name);
+// 	    istream_iterator<string> inf_iter(inf);
+//  	file_names.assign(inf_iter, istream_iterator<string>());
+//  	no_files = file_names.size();
+//  }
 
 
 // ***************************************************************
@@ -103,18 +106,20 @@ unsigned char* read_file(string &name)
 // ***************************************************************
 // Reads the reference bytevector
 // ***************************************************************
-void readReferenceVector()
-{
-	string reference_filename = file_names[0];
-	reference_file = read_file(reference_filename);
-}
+//void readReferenceVector()
+//{
+//	string reference_filename = file_names[0];
+//	reference_file = read_file(reference_filename);
+//}
 
 // ***************************************************************
 // Given the phrase_id, it gives the new character which we added
 // ***************************************************************
 unsigned char getNewCharforPhrase(int file_id, int phrase_id)
 {
-	string filename = file_names[file_id];
+	vector<string> file_names = gtrac_input.get_file_names();
+	
+    string filename = file_names[file_id];
 	ifstream file(((string)phraseParmsDir + "/" + filename + ".parms"),ios::in | ios::binary);
 	int rank_literal = phraseLiteral[file_id].Rank(phrase_id-1,true);
 	int rank_source_size = phraseSourceSize[file_id].Rank(phrase_id-rank_literal-1,true);
@@ -149,7 +154,9 @@ unsigned char getNewCharforPhrase(int file_id, int phrase_id)
 // ***************************************************************
 int getSourceforPhrase( int file_id, int phrase_id)
 {
-	string filename = file_names[file_id];
+	vector<string> file_names = gtrac_input.get_file_names();	
+
+    string filename = file_names[file_id];
 	ifstream file(((string)phraseParmsDir + +"/"+ filename + ".parms"),ios::in | ios::binary);
 	int rank_literal = phraseLiteral[file_id].Rank(phrase_id-1,true);
 	int rank_source_size = phraseSourceSize[file_id].Rank(phrase_id-1-rank_literal,true);
@@ -202,7 +209,9 @@ int select(int file_id, int phrase_id)
 // ***************************************************************
 void extract(int file_id, int start, int len)
 {
-	if( len > 0)
+	unsigned char* reference_file = gtrac_input.get_reference_file();	
+    
+    if( len > 0)
 	{
 		if(file_id == 0) // if it is the reference file
 		{
@@ -256,7 +265,9 @@ void extract(int file_id, int start, int len)
 // ***************************************************************
 void extract_block(int file_id, int start, int len, int block_id)
 {
-	if( len > 0)
+	unsigned char* reference_file = gtrac_input.get_reference_file();		
+    
+    if( len > 0)
 	{
 		if(file_id == 0) // if it is the reference file
 		{
@@ -311,8 +322,12 @@ void extract_block(int file_id, int start, int len, int block_id)
 // ***************************************************************
 void extractColumn(int column_no )
 {
-	column_data.push_back(reference_file[column_no]);
-	for( int file_id=1;file_id < no_files ; file_id++)
+	unsigned char* reference_file = gtrac_input.get_reference_file();		
+
+    int num_files = gtrac_input.get_num_files();
+	
+    column_data.push_back(reference_file[column_no]);
+	for( int file_id=1;file_id < num_files ; file_id++)
 	{
 		//cout << file_id << " " << start << " " << len  << " " << p << " :2" << endl;
 		int p = phraseEnd[file_id].Rank(column_no,true);	
@@ -445,7 +460,12 @@ int main(int argc, char** argv)
 	
 
     gtrac_input.check_data(argv[2]);
-	//readFileNames(argv[2]);
+	vector<string> file_names = gtrac_input.get_file_names();
+	int num_files = gtrac_input.get_num_files();
+	int file_size = gtrac_input.get_file_size();
+	
+    
+    //readFileNames(argv[2]);
 	phraseEnd = readSuccintBitVectors(phraseEndDir);
 	phraseLiteral = readSuccintBitVectors(phraseLiteralDir);
 	phraseSourceSize = readSuccintBitVectors(phraseSourceSizeDir);

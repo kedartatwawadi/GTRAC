@@ -20,7 +20,7 @@ public:
 	vector<string> get_file_names();
 	int get_file_size();
 	bool check_data(char* path);
-	// vector<unsigned char*> get_data_vector;
+	unsigned char* get_reference_file();
 
 private:
 	int num_files;
