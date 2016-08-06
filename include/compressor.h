@@ -49,6 +49,7 @@ public:
 	void parse_file(unsigned char * d, int file_id);
 
 	void prepare_ht(void);
+    void add_file_to_hash_table(unsigned char *d)
 	inline unsigned long hash_fun(unsigned char *p, int pos, int ver);
 	void insert_into_ht(file_id_t file_id, unsigned char *p, int ver);
 	inline pair<int, int> find_match(unsigned char *p, int pos, int ver);  

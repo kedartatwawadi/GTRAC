@@ -382,6 +382,18 @@ void compressor::parse_file(unsigned char * d, int file_id)
 }
 
 
+void compressor::add_file_to_hash_table(unsigned char *d)
+{
+	data.push_back(d);
+	// data would be a really big vector :-o as it is basically handling the whole data.
+
+	// Here we start two threads to hash the file using two hash tables
+	// This syntax is something new to C++ some kind of lambda function stuff.
+	// no need to worry about that right now
+	thread t1([&]{insert_into_ht(cur_id_file, d, 1);});
+	thread t2([&]{insert_into_ht(cur_id_file, d, 2);});
+}
+
 // ***************************************************************
 // The actual tgc compression
 // ***************************************************************
@@ -399,15 +411,7 @@ void compressor::compress(void)
 		if((d = read_file(file_names[i])) == NULL)
 			continue;
 
-		// Store d in the data vector. but why?
-		data.push_back(d);
-		// data would be a really big vector :-o as it is basically handling the whole data.
-
-		// Here we start two threads to hash the file using two hash tables
-		// This syntax is something new to C++ some kind of lambda function stuff.
-		// no need to worry about that right now
-		thread t1([&]{insert_into_ht(cur_id_file, d, 1);});
-		thread t2([&]{insert_into_ht(cur_id_file, d, 2);});
+        void add_file_to_hash_table(d);
 
 		// If i = 0 , we are processing the first file, so no hashing here
 		// If i != 0, then we are parsing the file with respect to the hash functions and then storing
