@@ -49,7 +49,7 @@ bool input_data::check_data(char* path)
 	fseek(in, 0, SEEK_SET);
 
     reference_file = new unsigned char[file_size];
-    fread(reference_file, 1, file_size, in);
+    int ret = fread(reference_file, 1, file_size, in);
     fclose(in);
 	
 	return true;

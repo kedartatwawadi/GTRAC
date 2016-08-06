@@ -95,7 +95,7 @@ unsigned char* read_file(string &name)
 	fseek(in, 0, SEEK_SET);
 
 	unsigned char *d = new unsigned char[size_of_file];
-	fread(d, 1, size_of_file, in);
+	int ret = fread(d, 1, size_of_file, in);
 	fclose(in);
 
 	return d;

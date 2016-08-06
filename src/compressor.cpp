@@ -157,11 +157,14 @@ void compressor::createSourceSizeBitVector(vector<bool> phrase_source_size, int 
 // Hash table functions
 // ***************************************************************
 
-// **************************************************************
+// ***************************************************************
+// Hash function
+// ***************************************************************
 inline unsigned long compressor::hash_fun(unsigned char *p, int pos, int ver)
 {
 	unsigned long res = 0;
 	
+    // ver: corresponds to the type of hash function in use
 	if(ver == 1)
 		for(int i = 0; i < HASH_LEN1; ++i)
 			res = res * 65531u + p[pos+i] * 29u;
@@ -172,6 +175,8 @@ inline unsigned long compressor::hash_fun(unsigned char *p, int pos, int ver)
 	return res & ht_slot_size_mask;
 }
 
+// ***************************************************************
+// Find the best match
 // ***************************************************************
 inline pair<int, int> compressor::find_match(unsigned char *p, int pos, int ver)
 {
@@ -249,6 +254,17 @@ inline pair<int, int> compressor::find_match(unsigned char *p, int pos, int ver)
 // ***************************************************************
 //
 // ***************************************************************
+inline pair<int, int> compressor::find_match_final(unsigned char *p, int pos)
+{
+	pair<int, int> match = find_match(p, pos, 1);
+	if(match.second < HASH_LEN1 + HASH_STEP1 - 1)
+		match = find_match(p, pos, 2);
+    return match;
+}
+
+// ***************************************************************
+//
+// ***************************************************************
 void compressor::insert_into_ht(file_id_t file_id, unsigned char *p, int ver)
 {
 	int file_size = gtrac_input.get_file_size();
@@ -301,8 +317,6 @@ void compressor::parse_file(unsigned char * d, int file_id)
 	int file_size = gtrac_input.get_file_size();
 
 	cout << "Parsing file id: " << file_id << endl;
-	int best_len;
-	int best_id;
 	
 	string filename = file_names[file_id];
 	ofstream out_file(( (string)phraseParmsDir+"/"+ filename + ".parms"), ios::out | ios::binary | ios::trunc );
@@ -313,15 +327,10 @@ void compressor::parse_file(unsigned char * d, int file_id)
 	vector<bool> phrase_literal;
 	vector<bool> phrase_source_size;
 
-
 	pos = 0;
 	while(pos < file_size)
 	{
-		pair<int, int> match = find_match(d, pos, 1);
-	//	cout << match.first << ", " << match.second << endl;
-		if(match.second < HASH_LEN1 + HASH_STEP1 - 1)
-			match = find_match(d, pos, 2);
-	
+		    pair<int, int> match = find_match_final(d, pos);
 			pos += match.second;
 			// Get the phrase index to be stored.
 			int phrase_index = -1;

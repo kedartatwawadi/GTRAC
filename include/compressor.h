@@ -44,7 +44,6 @@ public:
 	bool prepare_files();
 	void compress(void);
 	unsigned char* read_file(string &name);
-	inline pair<int, int> find_match(unsigned char *p, int pos, int ver);
 	void output_all_succint_bv_files();
 	void output_bv_files(RSDic* succint_bv_dict, string write_dir);
 	void parse_file(unsigned char * d, int file_id);
@@ -52,6 +51,8 @@ public:
 	void prepare_ht(void);
 	inline unsigned long hash_fun(unsigned char *p, int pos, int ver);
 	void insert_into_ht(file_id_t file_id, unsigned char *p, int ver);
+	inline pair<int, int> find_match(unsigned char *p, int pos, int ver);  
+    inline pair<int, int> find_match_final(unsigned char *p, int pos);
 
 	void createBitVector(bool* phrase, int file_id );
 	void createLiteralBitVector(vector<bool> phrase_literal, int file_id );
