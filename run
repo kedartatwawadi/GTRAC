@@ -381,7 +381,7 @@ compress_bv()
 		echo "************************************************************"
                 echo "*** Compressing the binary matrix H for chromosome $c  ***"
                 echo "************************************************************"
-          cd chr$c
+        cd chr$c
 		mkdir compressed_files
 		mkdir output_gtrac
 		mkdir compressed_files/phrase_params/

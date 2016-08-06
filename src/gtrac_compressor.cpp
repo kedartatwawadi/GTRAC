@@ -1,3 +1,7 @@
+
+#define DEBUG
+
+
 #include <iostream>     // std::cout, std::ostream, std::ios
 #include <fstream> 
 #include <stdio.h>
@@ -5,6 +9,8 @@
 #include <utility>
 #include "input_data.h"
 #include "compressor.h"
+
+
 
 using namespace std;
 
@@ -14,6 +20,8 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 	clock_t t1 = clock();
+    DEBUG_MSG("argv[1] : " << argv[1] );
+    DEBUG_MSG("argv[2] : " << argv[2] );
 
 	if((argc < 2))
 	{
@@ -22,11 +30,17 @@ int main(int argc, char *argv[])
 		return false;
 	}
 
+    DEBUG_MSG( "Program Started ..."); 
 	// initialize the input_data class object
-	input_data* gtrac_input;
-	gtrac_input->check_data(argv[2]);
-	string output_prefix(argv[1]);
-	compressor gtrac_comp(gtrac_input, output_prefix);
+	input_data gtrac_input(argv[2]);
+    input_data* gtrac_input_ptr = &gtrac_input;
+    DEBUG_MSG( "defined gtrac_input...");
+
+    //gtrac_input->check_data(argv[2]);
+	DEBUG_MSG("data check done...");
+
+    string output_prefix(argv[1]);
+	compressor gtrac_comp(gtrac_input_ptr, output_prefix);
 
 	cout << "Compressing...\n";
 	gtrac_comp.compress();
