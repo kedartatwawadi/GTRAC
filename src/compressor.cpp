@@ -392,6 +392,10 @@ void compressor::add_file_to_hash_table(unsigned char *d)
 	// no need to worry about that right now
 	thread t1([&]{insert_into_ht(cur_id_file, d, 1);});
 	thread t2([&]{insert_into_ht(cur_id_file, d, 2);});
+
+	t1.join();
+	t2.join();
+
 }
 
 // ***************************************************************
@@ -411,7 +415,7 @@ void compressor::compress(void)
 		if((d = read_file(file_names[i])) == NULL)
 			continue;
 
-        void add_file_to_hash_table(d);
+        add_file_to_hash_table(d);
 
 		// If i = 0 , we are processing the first file, so no hashing here
 		// If i != 0, then we are parsing the file with respect to the hash functions and then storing
@@ -423,8 +427,6 @@ void compressor::compress(void)
 			;// store_ref_file
 
 
-		t1.join();
-		t2.join();
 		++cur_id_file;
 	}
 	
