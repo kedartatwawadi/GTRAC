@@ -308,7 +308,7 @@ void compressor::parse_file(unsigned char * d, int file_id)
 	ofstream out_file(( (string)phraseParmsDir+"/"+ filename + ".parms"), ios::out | ios::binary | ios::trunc );
 	
 
-	bool phrase[file_size];// = {false};//(false);
+	bool phrase[file_size];
 	fill_n(phrase, file_size, false);
 	vector<bool> phrase_literal;
 	vector<bool> phrase_source_size;

@@ -16,15 +16,14 @@
 #include "rsdic/RSDicBuilder.hpp"
 #include "input_data.h"
 
+#define HASH_LEN1			11
+#define HASH_LEN2			2
+#define HT_FACTOR			2
 #define MIN_MATCH_LEN		5
 #define MAX_MATCH_LEN_EXP	11
 #define MAX_MATCH_LEN		((1 << MAX_MATCH_LEN_EXP) + MIN_MATCH_LEN - 1)
 #define HASH_STEP1			4
 #define HASH_STEP2			(MIN_MATCH_LEN - HASH_LEN2 + 1)
-
-#define HASH_LEN1			11
-#define HASH_LEN2			2
-#define HT_FACTOR			2
 
 #define phraseEndDir "compressed_files/phrase_end"
 #define phraseLiteralDir "compressed_files/phrase_C"
@@ -43,18 +42,16 @@ public:
 	compressor(input_data* input_info, string output_name);
 	void prepare_compressor(input_data* gtrac_input, string output_name); 
 	bool prepare_files();
-	void close_files(void);
 	void compress(void);
 	unsigned char* read_file(string &name);
 	inline pair<int, int> find_match(unsigned char *p, int pos, int ver);
 	void output_all_succint_bv_files();
 	void output_bv_files(RSDic* succint_bv_dict, string write_dir);
+	void parse_file(unsigned char * d, int file_id);
 
 	void prepare_ht(void);
 	inline unsigned long hash_fun(unsigned char *p, int pos, int ver);
 	void insert_into_ht(file_id_t file_id, unsigned char *p, int ver);
-	void parse_file(unsigned char * d, int file_id);
-
 
 	void createBitVector(bool* phrase, int file_id );
 	void createLiteralBitVector(vector<bool> phrase_literal, int file_id );
