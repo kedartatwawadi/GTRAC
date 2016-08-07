@@ -2,55 +2,6 @@
 using namespace std;
 
 // ***************************************************************
-// Default Constructor
-// ***************************************************************
-compressor::compressor(){
-}
-
-// ***************************************************************
-// Constructor
-// ***************************************************************
-compressor::compressor(input_data* input_info, string output_name){
-	prepare_compressor(input_info, output_name);
-}
-
-// ***************************************************************
-// Prepare compressor
-// ***************************************************************
-void compressor::prepare_compressor(input_data* input_info, string output_name){
-	gtrac_input = *input_info;
-	output_prefix = output_name;
-	pos = 0;
-	cur_id_file = 0;
-	bvb.Clear();
-
-	prepare_files();	
-	prepare_ht();
-}
-
-
-// ***************************************************************
-// Prepare output files
-// ***************************************************************
-bool compressor::prepare_files()
-{
-	int num_files = gtrac_input.get_num_files();
-	int file_size = gtrac_input.get_file_size();
-
-	// Create the vectors to store the phrase endings
-	phraseEnd = new RSDic[num_files];
-	phraseLiteral = new RSDic[num_files];
-	phraseSourceSize = new RSDic[num_files];
-
-	// Always true for the reference vector, as we are storing it directly.
-	for( int j = 0;j < file_size; j++)
-		bvb.PushBack( true );
-	bvb.Build(phraseEnd[0]);
-	
-	return 0;
-}
-
-// ***************************************************************
 // Prepare the hash tables
 // ***************************************************************
 void compressor::prepare_ht(void)
@@ -88,39 +39,6 @@ void compressor::prepare_ht(void)
 	fill(ht_zeros2, ht_zeros2+ht_slots2, 0);
 }
 
-
-// ***************************************************************
-// I/Ofunctions
-// ***************************************************************
-unsigned char* compressor::read_file(string &name)
-{
-	int file_size = gtrac_input.get_file_size();
-
-	FILE *in = fopen(name.c_str(), "r");
-	if(!in)
-	{
-		int a;
-		cout << "No file!: " << name << "\n";
-		cin >> a;
-		return NULL;
-	}
-
-	// Check size
-	fseek(in, 0, SEEK_END);
-	if(ftell(in) != (unsigned int) file_size)
-	{
-		cout << "File " << name << " is of incompatibile size\n";
-		fclose(in);
-		return NULL;
-	}
-	fseek(in, 0, SEEK_SET);
-
-	unsigned char *d = new unsigned char[file_size];
-	int ret = fread(d, 1, file_size, in);
-	fclose(in);
-
-	return d;
-}
 
 
 
@@ -306,6 +224,109 @@ void compressor::insert_into_ht(file_id_t file_id, unsigned char *p, int ver)
 }
 
 
+// ***************************************************************
+// Add stuff to the hash table
+// ***************************************************************
+
+void compressor::add_file_to_hash_table(unsigned char *d)
+{
+	data.push_back(d);
+	// data would be a really big vector :-o as it is basically handling the whole data.
+
+	// Here we start two threads to hash the file using two hash tables
+	// This syntax is something new to C++ some kind of lambda function stuff.
+	// no need to worry about that right now
+	thread t1([&]{insert_into_ht(cur_id_file, d, 1);});
+	thread t2([&]{insert_into_ht(cur_id_file, d, 2);});
+
+	t1.join();
+	t2.join();
+
+}
+
+// ***************************************************************
+// Default Constructor
+// ***************************************************************
+compressor::compressor(){
+}
+
+// ***************************************************************
+// Constructor
+// ***************************************************************
+compressor::compressor(input_data* input_info, string output_name){
+	prepare_compressor(input_info, output_name);
+}
+
+// ***************************************************************
+// Prepare compressor
+// ***************************************************************
+void compressor::prepare_compressor(input_data* input_info, string output_name){
+	gtrac_input = *input_info;
+	output_prefix = output_name;
+	pos = 0;
+	cur_id_file = 0;
+	bvb.Clear();
+
+	prepare_files();	
+	prepare_ht();
+}
+
+
+// ***************************************************************
+// Prepare output files
+// ***************************************************************
+bool compressor::prepare_files()
+{
+	int num_files = gtrac_input.get_num_files();
+	int file_size = gtrac_input.get_file_size();
+
+	// Create the vectors to store the phrase endings
+	phraseEnd = new RSDic[num_files];
+	phraseLiteral = new RSDic[num_files];
+	phraseSourceSize = new RSDic[num_files];
+
+	// Always true for the reference vector, as we are storing it directly.
+	for( int j = 0;j < file_size; j++)
+		bvb.PushBack( true );
+	bvb.Build(phraseEnd[0]);
+	
+	return 0;
+}
+
+
+// ***************************************************************
+// I/Ofunctions
+// ***************************************************************
+unsigned char* compressor::read_file(string &name)
+{
+	int file_size = gtrac_input.get_file_size();
+
+	FILE *in = fopen(name.c_str(), "r");
+	if(!in)
+	{
+		int a;
+		cout << "No file!: " << name << "\n";
+		cin >> a;
+		return NULL;
+	}
+
+	// Check size
+	fseek(in, 0, SEEK_END);
+	if(ftell(in) != (unsigned int) file_size)
+	{
+		cout << "File " << name << " is of incompatibile size\n";
+		fclose(in);
+		return NULL;
+	}
+	fseek(in, 0, SEEK_SET);
+
+	unsigned char *d = new unsigned char[file_size];
+	int ret = fread(d, 1, file_size, in);
+	fclose(in);
+
+	return d;
+}
+
 
 // ***************************************************************
 // Compression functions
@@ -382,21 +403,6 @@ void compressor::parse_file(unsigned char * d, int file_id)
 }
 
 
-void compressor::add_file_to_hash_table(unsigned char *d)
-{
-	data.push_back(d);
-	// data would be a really big vector :-o as it is basically handling the whole data.
-
-	// Here we start two threads to hash the file using two hash tables
-	// This syntax is something new to C++ some kind of lambda function stuff.
-	// no need to worry about that right now
-	thread t1([&]{insert_into_ht(cur_id_file, d, 1);});
-	thread t2([&]{insert_into_ht(cur_id_file, d, 2);});
-
-	t1.join();
-	t2.join();
-
-}
 
 // ***************************************************************
 // The actual tgc compression

@@ -16,7 +16,6 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 	clock_t t1 = clock();
-    LOG(INFO) << "Starting gtrac_compressor";
 
 	if((argc < 2))
 	{
