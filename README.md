@@ -1,5 +1,7 @@
 # GTRAC
+V0.1.4 
 GeneType Random Access Compressor
+
 
 ## Getting Started
 ### Install
