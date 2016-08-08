@@ -1,14 +1,13 @@
 #ifndef HASH_TABLE_H_
 #define HASH_TABLE_H_
 
-#define HASH_LEN		    11
-#define HT_FACTOR			2
-#define MIN_MATCH_LEN		5
-#define MAX_MATCH_LEN_EXP	11
-#define MAX_MATCH_LEN		((1 << MAX_MATCH_LEN_EXP) + MIN_MATCH_LEN - 1)
-#define HASH_STEP1			4
-#define HASH_STEP2			(MIN_MATCH_LEN - HASH_LEN2 + 1)
-
+#include <iostream>     // std::cout, std::ostream, std::ios
+#include <fstream> 
+#include <stdio.h>
+#include <string>
+#include <iterator>
+#include <vector>
+#include "rsdic/RSDic.hpp"
 
 using namespace std;
 using namespace rsdic;
@@ -17,10 +16,34 @@ typedef short file_id_t;
 class hash_table {
 public:
     hash_table();
-    hash_table();
-    void initialize_ht(int hash_len, int ht_factor, int hash_step);
+    hash_table(int num_files, int file_size, int hash_len, int ht_factor, int hash_step);
+    void initialize_ht(int num_files, int file_size, int hash_len, int ht_factor, int hash_step);
+	void prepare_ht();
+    void insert_into_ht(file_id_t file_id, unsigned char *p);
+	pair<int, int> find_match_ht(unsigned char *p, int pos, file_id_t current_file_id, RSDic* phraseEnd, vector<unsigned char*>* data_ptr );  
+    
+    int get_hash_len();
+    int get_hash_step();
+
 private:
+    int file_size;
+    int num_files;
 
+    unsigned int hash_len;
+    unsigned int ht_factor;
+    unsigned int hash_step;
 
+	unsigned long long ht_size;			// size of hash table
+	unsigned long ht_slots;				// no. of slots in HT
+	unsigned long ht_slot_size_exp;		// size of hast table for each location
+	unsigned long ht_slot_size_mask;	// size of hast table for each location
+	unsigned long ht_slot_size;			// size of slot of hash table
 
-}
+    file_id_t* ht;
+    file_id_t* ht_zeros;
+
+    unsigned long hash_fun(unsigned char *p, int pos);
+
+};
+
+#endif /* HASH_TABLE_H_ */

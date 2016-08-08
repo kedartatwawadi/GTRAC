@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	// initialize the input_data class object
 	input_data gtrac_input(argv[2]);
     input_data* gtrac_input_ptr = &gtrac_input;
-
+    cout << "gtrac_input" << endl;
     //gtrac_input->check_data(argv[2]);
 
     string output_prefix(argv[1]);
