@@ -22,16 +22,13 @@ input_data::input_data(char* path){
 // ***************************************************************
 bool input_data::check_data(char* path)
 {
-	DEBUG_MSG("path: " << path);
     cout << "path" << path << endl;
-    DEBUG_MSG("num files is: " << num_files); 
 	ifstream inf(path);
 	istream_iterator<string> inf_iter(inf);
 	file_names.assign(inf_iter, istream_iterator<string>());
 
 	num_files = file_names.size();
     cout << "num files is: " << num_files << endl;
-    DEBUG_MSG("num files is: " << num_files); 
 	if(!num_files)
 	{
 		cout << "There are no files to process\n";
@@ -50,7 +47,6 @@ bool input_data::check_data(char* path)
 	fseek(in, 0, SEEK_END);
 	file_size = (int) ftell(in);
 	fseek(in, 0, SEEK_SET);
-    DEBUG_MSG("file_size is: " << file_size); 
     
 
     reference_file = new unsigned char[file_size];
