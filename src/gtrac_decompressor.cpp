@@ -32,11 +32,7 @@ RSDic* phraseLiteral;
 RSDic* phraseSourceSize;
 
 input_data gtrac_input;
-// int no_files;
 int number_of_blocks = 4;
-// vector<string> file_names;
-// unsigned char* reference_file;
-// int file_size;
 vector<unsigned char> data;
 vector<vector<unsigned char> > block_data;
 vector<unsigned char> column_data;
@@ -381,6 +377,15 @@ void extractLong(int file_id,int start,int len)
 	}	
 }
 
+
+void initialize_decompressor(char* path)
+{
+    gtrac_input.check_data(path); 
+	phraseEnd = readSuccintBitVectors(phraseEndDir);
+	phraseLiteral = readSuccintBitVectors(phraseLiteralDir);
+	phraseSourceSize = readSuccintBitVectors(phraseSourceSizeDir);
+
+}
 // // ***************************************************************
 // // Testing the setup
 // // ***************************************************************
@@ -459,20 +464,11 @@ int main(int argc, char** argv)
 		test_setup = true;
 	
 
-    gtrac_input.check_data(argv[2]);
+    initialize_decompressor(argv[2]);
+	
 	vector<string> file_names = gtrac_input.get_file_names();
 	int num_files = gtrac_input.get_num_files();
-	int file_size = gtrac_input.get_file_size();
-	
-    
-    //readFileNames(argv[2]);
-	phraseEnd = readSuccintBitVectors(phraseEndDir);
-	phraseLiteral = readSuccintBitVectors(phraseLiteralDir);
-	phraseSourceSize = readSuccintBitVectors(phraseSourceSizeDir);
-	//readReferenceVector();
-
-	// if( test_setup ) setup_testing(file_id, start, len);
-	
+	int file_size = gtrac_input.get_file_size();	
 
 	if( decomp_column == true)
 	{
