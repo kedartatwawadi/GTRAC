@@ -22,7 +22,7 @@ input_data::input_data(char* path){
 // ***************************************************************
 bool input_data::check_data(char* path)
 {
-    cout << "path" << path << endl;
+    cout << "Input data prefix: " << path << endl;
 	ifstream inf(path);
 	istream_iterator<string> inf_iter(inf);
 	file_names.assign(inf_iter, istream_iterator<string>());
