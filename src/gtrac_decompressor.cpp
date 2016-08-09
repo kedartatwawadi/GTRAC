@@ -25,6 +25,8 @@
 
 using namespace std;
 using namespace rsdic;
+using namespace std::chrono;
+
 
 RSDicBuilder bvb;
 RSDic* phraseEnd;
@@ -61,17 +63,6 @@ RSDic* readSuccintBitVectors(string bvDictDir)
 }
 
 
-// ***************************************************************
-// basic function to make note of all the files
-// ***************************************************************
-//  void readFileNames(char* listfile_name)
-//  {
-//  	ifstream inf(listfile_name);
-// 	    istream_iterator<string> inf_iter(inf);
-//  	file_names.assign(inf_iter, istream_iterator<string>());
-//  	no_files = file_names.size();
-//  }
-
 
 // ***************************************************************
 // generic function to read a file
@@ -99,14 +90,6 @@ unsigned char* read_file(string &name)
 
 
 
-// ***************************************************************
-// Reads the reference bytevector
-// ***************************************************************
-//void readReferenceVector()
-//{
-//	string reference_filename = file_names[0];
-//	reference_file = read_file(reference_filename);
-//}
 
 // ***************************************************************
 // Given the phrase_id, it gives the new character which we added
@@ -396,159 +379,110 @@ void help_msg()
     cout << "  start_index        - start index of the substring to uncompress\n";
     cout << "  len_to_uncompress  - length to uncompress\n";
 }
-// // ***************************************************************
-// // Testing the setup
-// // ***************************************************************
-// void setup_testing(int file_id, int start, int len)
-// {
-// 	cout << "The setup is done" << endl;
-// 	cout << "testing the binary vectors..." << endl;
-// 	int pos = phraseEnd[file_id].Select(5,true);
-// 	cout << "file_id: " << file_id << " phraseEnd position 5: " << pos << endl;
 
-// 	unsigned char temp = 0;
-// 	for( int i = start ; i < (start+len) ; i++)
-// 	{
-// 		temp = getNewCharforPhrase(file_id, i);
-// 		cout << "NewChar[" << file_id << ", " << i << " ]: " << (unsigned int)temp << endl;	
-// 	};
+void perform_column_decomp(int column_num)
+{
+    cout << "Initiating Column Decompression ... \n";
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    extractColumn(column_num);
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+    cout << "\nTime: " << time_span.count() << "\n";
 
-// 	for( int i = start ; i < (start+len) ; i++)
-// 	{
-// 		pair<int, int> source;
-// 		source = getSourceforPhrase( file_id, i);
-// 		cout << "Sourceid[" << file_id << ", " << i << " ]: " << (int)source.first << endl;	
-// 	};
-// }
+	copy(column_data.begin(), column_data.end(), std::ostream_iterator<int>(std::cout, " "));
+}
 
+
+void perform_row_decomp(int file_id)
+{
+	vector<string> file_names = gtrac_input.get_file_names();
+    int file_size = gtrac_input.get_file_size();
+
+    cout << "Initiating Fast Decompression ... \n";
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    extractLong(file_id, 0, file_size);
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+    cout << "\nTime: " << time_span.count() << "\n";
+
+    unsigned char temp = 0;
+    ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
+    for(int j = 0 ; j < number_of_blocks ; j++ )
+    {
+        //cout << "Block id: " << j << endl;
+        for(int i = 0 ; i < block_data[j].size() ; i++ )
+        {
+            temp = block_data[j][i];
+            output_file << temp;
+        }
+        //cout << endl;
+        // copy(block_data[j].begin(), block_data[j].end(), std::ostream_iterator<unsigned short>(output_file));
+    }
+    output_file.close();
+}
+
+
+void perform_substring_decomp(int file_id, int start, int len)
+{
+	vector<string> file_names = gtrac_input.get_file_names();
+    
+    cout << "Initiating Regular Decompression ... \n";
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    extract(file_id, start, len);
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+    cout << "\nTime: " << time_span.count() << "\n";		
+
+    unsigned char temp = 0;
+    ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
+    for(int i = 0 ; i < data.size() ; i++ )
+    {
+        temp = data[i];
+        output_file << temp;
+    }
+    cout << endl;	
+    output_file.close();
+
+}
 // ***************************************************************
 // Compression functions
 // ***************************************************************
 int main(int argc, char** argv)
 {
-	using namespace std::chrono;
+    int column_num;
+    int file_id;
 
-	int decomp_column = false;
-	int fast_decomp = false;
-	int test_setup = false;
-	int column_no = -1;
-	int file_id = -1;
-	int start = -1;
-	int len = -1;
-
-	if((argc < 4) || (argc < 6 && strcmp(argv[1], "d") == 0 ))
+	if((argc < 4))
 	{
 		help_msg();
         return false;
 	}
 
-	if(strcmp(argv[1], "c") == false)
-	{
-		decomp_column = true;
-		column_no = atoi(argv[3]);
-		cout << "Column to extract: " << column_no << endl;
-	}
-	else if( strcmp(argv[1], "f") == false)
-	{
-		file_id = atoi(argv[3]);
-	}
-	else
-	{
-		file_id = atoi(argv[3]);
-		start = atoi(argv[4]);
-		len = atoi(argv[5]);
-		cout << "file_id: " << file_id << endl;
-		cout << "start: " << start << endl;
-		cout << "len: " << len << endl;
-	}
-
-	if(strcmp(argv[1], "f") == false)
-		fast_decomp = true;
-
-	if(strcmp(argv[1], "t") == false)
-		test_setup = true;
-	
-
     initialize_decompressor(argv[2]);
-	
-	vector<string> file_names = gtrac_input.get_file_names();
-	int num_files = gtrac_input.get_num_files();
-	int file_size = gtrac_input.get_file_size();	
 
-	if( decomp_column == true)
-	{
-		cout << "Initiating Column Decompression ... \n";
-		high_resolution_clock::time_point t1 = high_resolution_clock::now();
-		extractColumn(column_no);
-		high_resolution_clock::time_point t2 = high_resolution_clock::now();
-		duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-		cout << "\nTime: " << time_span.count() << "\n";
-		
-		copy(column_data.begin(), column_data.end(), std::ostream_iterator<int>(std::cout, " "));
-	}
-	else
-	{
-		if( fast_decomp)
-		{
-			cout << "Initiating Fast Deocmpression ... \n";
-			high_resolution_clock::time_point t1 = high_resolution_clock::now();
-			extractLong(file_id, 0, file_size);
-			high_resolution_clock::time_point t2 = high_resolution_clock::now();
-			duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-			cout << "\nTime: " << time_span.count() << "\n";
-		}
-		else if(!test_setup)
-		{
-			cout << "Initiating Regular Deocmpression ... \n";
-			high_resolution_clock::time_point t1 = high_resolution_clock::now();
-			extract(file_id, start, len);
-			high_resolution_clock::time_point t2 = high_resolution_clock::now();
-			duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-			cout << "\nTime: " << time_span.count() << "\n";		
-		}
-
-
-		if(fast_decomp)
-		{
-			unsigned char temp = 0;
-			ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
-			for(int j = 0 ; j < number_of_blocks ; j++ )
-			{
-				//cout << "Block id: " << j << endl;
-				for(int i = 0 ; i < block_data[j].size() ; i++ )
-				{
-					temp = block_data[j][i];
-					output_file << temp;
-				}
-				//cout << endl;
-				// copy(block_data[j].begin(), block_data[j].end(), std::ostream_iterator<unsigned short>(output_file));
-			}
-			output_file.close();
-			
-		}
-		else
-		{	
-			unsigned char temp = 0;
-			ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
-			for(int i = 0 ; i < data.size() ; i++ )
-			{
-				temp = data[i];
-				output_file << temp;
-			}
-			cout << endl;	
-			output_file.close();
-		}
-	}
-	
-	/************************** Output the results appropriately ***********************/
-	// copy(data.begin(), data.end(), std::ostream_iterator<int>(std::cout, " "));
-	// cout << endl;
-
-	// ofstream output_file("output_3_" + file_names[file_id], ios::binary);
-	// copy(data.begin(), data.end(), std::ostream_iterator<unsigned char>(output_file));
-	// output_file.close();
-
-	
-
+    switch ( *argv[1]) {
+        case 'c':
+            cout << "Column Extraction..." <<endl;
+		    column_num = atoi(argv[3]);
+		    cout << "Column to extract: " << column_num << endl;
+            perform_column_decomp(column_num);
+            break;
+        case 'f':
+            cout << "Fast Row Extraction..." <<endl;
+            file_id = atoi(argv[3]);
+            cout << "file_id: " << file_id << endl;
+            perform_row_decomp(file_id);
+            break;
+        case 'd':
+            cout << "Subtring Extraction..." <<endl;
+            file_id = atoi(argv[3]);
+            int start = atoi(argv[4]);
+            int len = atoi(argv[5]);
+            cout << "file_id: " << file_id << endl;
+            cout << "start: " << start << endl;
+            cout << "len: " << len << endl;
+            perform_substring_decomp(file_id, start, len); 
+            break;
+    }
 	return 0;
 }
