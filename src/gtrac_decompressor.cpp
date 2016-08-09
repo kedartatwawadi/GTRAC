@@ -386,6 +386,16 @@ void initialize_decompressor(char* path)
 	phraseSourceSize = readSuccintBitVectors(phraseSourceSizeDir);
 
 }
+
+void help_msg()
+{
+    cout << "Usage: tgc <mode> <output_name> [list_file_name]\n";
+    cout << "  mode               - c (column decompress), d (decompress), f(fast decompress)  \n";
+    cout << "  list_file_name     - name of the file with the list of files to compress or decompress\n";
+    cout << "  file_to_uncompress - index of the file to uncompress\n";
+    cout << "  start_index        - start index of the substring to uncompress\n";
+    cout << "  len_to_uncompress  - length to uncompress\n";
+}
 // // ***************************************************************
 // // Testing the setup
 // // ***************************************************************
@@ -428,13 +438,8 @@ int main(int argc, char** argv)
 
 	if((argc < 4) || (argc < 6 && strcmp(argv[1], "d") == 0 ))
 	{
-			cout << "Usage: tgc <mode> <output_name> [list_file_name]\n";
-			cout << "  mode               - c (column decompress), d (decompress), f(fast decompress)  \n";
-			cout << "  list_file_name     - name of the file with the list of files to compress or decompress\n";
-			cout << "  file_to_uncompress - index of the file to uncompress\n";
-			cout << "  start_index        - start index of the substring to uncompress\n";
-		 	cout << "  len_to_uncompress  - length to uncompress\n";
-			return false;
+		help_msg();
+        return false;
 	}
 
 	if(strcmp(argv[1], "c") == false)
