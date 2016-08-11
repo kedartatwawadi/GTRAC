@@ -10,9 +10,9 @@ using namespace std;
 void help_msg()
 {
     cout << "Usage: tgc <mode> <output_name> [list_file_name]\n";
-    cout << "  mode               - c (column decompress), d (decompress), f(fast decompress)  \n";
-    cout << "  list_file_name     - name of the file with the list of files to compress or decompress\n";
-    cout << "  file_to_uncompress - index of the file to uncompress\n";
+    cout << "  mode               - c (column decompress), d (decompress), f(fast row decompress)  \n";
+    cout << "  list_file_name     - name of the file with the list of files to decompress\n";
+    cout << "  file_to_decompress - index of the file to decompress\n";
     cout << "  start_index        - start index of the substring to uncompress\n";
     cout << "  len_to_uncompress  - length to uncompress\n";
 }

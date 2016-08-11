@@ -225,6 +225,7 @@ void compressor::compress(void)
 	}
 	
 	output_all_succint_bv_files();
+    output_reference_file();
 }
 
 
@@ -258,3 +259,15 @@ void compressor::output_all_succint_bv_files()
 	output_bv_files(phraseSourceSize, phraseSourceSizeDir);
 }
 
+void compressor::output_reference_file()
+{
+    unsigned char* reference_file = gtrac_input.get_reference_file();
+    int file_size = gtrac_input.get_file_size();
+    ofstream output_file((string)referenceFileDir+".bv", ios::binary);
+    for(int i = 0 ; i < file_size ; i++ )
+    {
+        output_file << reference_file[i];
+    }	
+    output_file.close();
+        
+}

@@ -21,6 +21,7 @@
 #define phraseLiteralDir "compressed_files/phrase_C"
 #define phraseSourceSizeDir "compressed_files/phrase_s"
 #define phraseParmsDir "compressed_files/phrase_params"
+#define referenceFileDir "compressed_files/reference_file"
 
 using namespace std;
 using namespace rsdic;
@@ -43,6 +44,7 @@ public:
 	void createLiteralBitVector(vector<bool> phrase_literal, int file_id );
 	void createSourceSizeBitVector(vector<bool> phrase_source_size, int file_id );
 
+    void output_reference_file();
 
 
 private:
