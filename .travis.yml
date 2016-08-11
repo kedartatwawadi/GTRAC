@@ -46,7 +46,9 @@ before_install:
     - cd rsdic
     - ./waf configure
     - ./waf
-    - sudo ./waf install 
+    - sudo ./waf install
+    - cd ..
+
 script:
     - mkdir build
     - cd build
