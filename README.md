@@ -2,6 +2,8 @@
 V0.1.4 
 GeneType Random Access Compressor
 
+[![Build Status](https://travis-ci.org/kedartatwawadi/GTRAC.svg?branch=master)](https://travis-ci.org/kedartatwawadi/GTRAC)
+
 
 ## Getting Started
 ### Install
