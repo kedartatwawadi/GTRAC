@@ -21,7 +21,8 @@ public:
 	vector<string> get_file_names();
 	int get_file_size();
 	bool check_data(char* path);
-	unsigned char* get_reference_file();
+    bool read_metadata(string metadata_file_name, string ref_file_name);
+    unsigned char* get_reference_file();
 
 private:
 	int num_files;
