@@ -36,10 +36,10 @@ public:
 	void prepare_compressor(input_data* gtrac_input, string output_name); 
 	bool prepare_files();
 	void compress(void);
-	unsigned char* read_file(string &name);
+	symbol_t* read_file(string &name);
 	void output_all_succint_bv_files();
 	void output_bv_files(RSDic* succint_bv_dict, string write_dir);
-	void compress_file(unsigned char * d, file_id_t file_id);
+	void compress_file(symbol_t * d, file_id_t file_id);
 
 	void createBitVector(bool* phrase, int file_id );
 	void createLiteralBitVector(vector<bool> phrase_literal, int file_id );
@@ -59,6 +59,7 @@ private:
 	int cur_id_file;
 	string output_prefix;
 	input_data gtrac_input;
+
 };
 
 #endif /* COMPRESSOR_H_ */

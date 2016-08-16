@@ -67,7 +67,7 @@ void hash_table::prepare_ht(void)
 // ***************************************************************
 // Hash function
 // ***************************************************************
-inline unsigned long hash_table::hash_fun(unsigned char *p, int pos)
+inline unsigned long hash_table::hash_fun(symbol_t *p, int pos)
 {
 	unsigned long res = 0;
 	
@@ -81,7 +81,7 @@ inline unsigned long hash_table::hash_fun(unsigned char *p, int pos)
 // ***************************************************************
 //
 // ***************************************************************
-void hash_table::insert_into_ht(file_id_t file_id, unsigned char *p)
+void hash_table::insert_into_ht(file_id_t file_id, symbol_t *p)
 {
 
 	unsigned int n_slot = 0;
@@ -105,9 +105,9 @@ void hash_table::insert_into_ht(file_id_t file_id, unsigned char *p)
 // ***************************************************************
 // Find the best match
 // ***************************************************************
-pair<int, int> hash_table::find_match_ht(unsigned char *p, int pos, file_id_t current_file_id, RSDic* phraseEnd, vector<unsigned char*>* data_ptr )
+pair<int, int> hash_table::find_match_ht(symbol_t *p, int pos, file_id_t current_file_id, RSDic* phraseEnd, vector<symbol_t*>* data_ptr )
 {
-    vector<unsigned char*> data = *data_ptr;
+    vector<symbol_t*> data = *data_ptr;
 	int best_id  = -1;
 	int best_len = -1;
 			

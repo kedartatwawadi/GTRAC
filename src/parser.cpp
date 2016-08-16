@@ -31,7 +31,7 @@ void parser::initialize_parser(int file_size_t, int num_files_t){
 // ***************************************************************
 //
 // ***************************************************************
-pair<int, int> parser::find_match(unsigned char *p, int pos, file_id_t current_file_id, RSDic* phraseEnd)
+pair<int, int> parser::find_match(symbol_t *p, int pos, file_id_t current_file_id, RSDic* phraseEnd)
 {
 	pair<int, int> match = ht1.find_match_ht(p, pos, current_file_id, phraseEnd, &data);
 	if(match.second < HASH_LEN1 + HASH_STEP1 - 1)
@@ -45,7 +45,7 @@ pair<int, int> parser::find_match(unsigned char *p, int pos, file_id_t current_f
 // Add stuff to the hash table
 //***************************************************************
 
-void parser::parse_file(unsigned char *d, file_id_t current_file_id)
+void parser::parse_file(symbol_t *d, file_id_t current_file_id)
 {
     data.push_back(d);
     // data would be a really big vector :-o as it is basically handling the whole data.

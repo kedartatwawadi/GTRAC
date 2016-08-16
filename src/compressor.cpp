@@ -57,9 +57,11 @@ void compressor::prepare_compressor(input_data* input_info, string output_name){
 
 	prepare_files();
 	int num_files = gtrac_input.get_num_files();
-	int file_size = gtrac_input.get_file_size();
+	//int file_size = gtrac_input.get_file_size();
+	int num_symbols = gtrac_input.get_num_symbols();
     
-    gtrac_parser.initialize_parser( file_size, num_files); 
+
+    gtrac_parser.initialize_parser(num_symbols, num_files); 
 }
 
 
@@ -69,7 +71,9 @@ void compressor::prepare_compressor(input_data* input_info, string output_name){
 bool compressor::prepare_files()
 {
 	int num_files = gtrac_input.get_num_files();
-	int file_size = gtrac_input.get_file_size();
+	//int file_size = gtrac_input.get_file_size();
+	int num_symbols = gtrac_input.get_num_symbols();
+
 
 	// Create the vectors to store the phrase endings
 	phraseEnd = new RSDic[num_files];
@@ -77,7 +81,7 @@ bool compressor::prepare_files()
 	phraseSourceSize = new RSDic[num_files];
 
 	// Always true for the reference vector, as we are storing it directly.
-	for( int j = 0;j < file_size; j++)
+	for( int j = 0;j < num_symbols; j++)
 		bvb.PushBack( true );
 	bvb.Build(phraseEnd[0]);
 	
@@ -88,9 +92,11 @@ bool compressor::prepare_files()
 // ***************************************************************
 // I/Ofunctions
 // ***************************************************************
-unsigned char* compressor::read_file(string &name)
+symbol_t* compressor::read_file(string &name)
 {
 	int file_size = gtrac_input.get_file_size();
+	int num_symbols = gtrac_input.get_num_symbols();
+    int padding = gtrac_input.get_padding_flag();
 
 	FILE *in = fopen(name.c_str(), "r");
 	if(!in)
@@ -111,22 +117,26 @@ unsigned char* compressor::read_file(string &name)
 	}
 	fseek(in, 0, SEEK_SET);
 
-	unsigned char *d = new unsigned char[file_size];
+    unsigned char *d = new unsigned char[file_size+padding];
 	int ret = fread(d, 1, file_size, in);
 	fclose(in);
+    if(padding)
+        d[file_size+padding] = 0;
 
-	return d;
+    symbol_t* d_symbol_t_ptr = (symbol_t*)d;
+	return d_symbol_t_ptr;
 }
 
 
 // ***************************************************************
 // Compression functions
 // ***************************************************************
-void compressor::compress_file(unsigned char * d, file_id_t file_id)
+void compressor::compress_file(symbol_t * d, file_id_t file_id)
 {
 	vector<string> file_names = gtrac_input.get_file_names();
 	int num_files = gtrac_input.get_num_files();
-	int file_size = gtrac_input.get_file_size();
+	//int file_size = gtrac_input.get_file_size();
+	int num_symbols = gtrac_input.get_num_symbols();
 
 	cout << "Parsing file id: " << file_id << endl;
 	
@@ -134,13 +144,13 @@ void compressor::compress_file(unsigned char * d, file_id_t file_id)
 	ofstream out_file(( (string)phraseParmsDir+"/"+ filename + ".parms"), ios::out | ios::binary | ios::trunc );
 	
 
-	bool phrase[file_size];
-	fill_n(phrase, file_size, false);
+	bool phrase[num_symbols];
+	fill_n(phrase, num_symbols, false);
 	vector<bool> phrase_literal;
 	vector<bool> phrase_source_size;
 
 	pos = 0;
-	while(pos < file_size)
+	while(pos < num_symbols)
 	{
 		    pair<int, int> match = gtrac_parser.find_match(d, pos, file_id, phraseEnd);
 			pos += match.second;
@@ -183,7 +193,7 @@ void compressor::compress_file(unsigned char * d, file_id_t file_id)
 			// WRITE NEWCHAR
 			/******************************/
 
-			out_file.write( (char*)&d[pos], sizeof( char ) );
+			out_file.write( (char*)&d[pos], sizeof( symbol_t ) );
 			pos++; // gear up for the next search;
 	}
 	
@@ -201,7 +211,7 @@ void compressor::compress_file(unsigned char * d, file_id_t file_id)
 
 void compressor::compress(void)
 {
-	unsigned char *d; // represents the data file
+	symbol_t *d; // represents the data file
 	vector<string> file_names = gtrac_input.get_file_names();
 	int num_files = gtrac_input.get_num_files();
 	

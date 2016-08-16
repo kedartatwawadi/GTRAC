@@ -20,7 +20,9 @@ public:
 	int get_num_files();
 	vector<string> get_file_names();
 	int get_file_size();
-	bool check_data(char* path);
+	int get_padding_flag();
+	int get_num_symbols();	
+    bool check_data(char* path);
     bool read_metadata(string metadata_file_name, string ref_file_name);
     unsigned char* get_reference_file();
 
@@ -29,6 +31,9 @@ private:
 	vector<string> file_names;
 	int file_size;
 	unsigned char* reference_file;
+
+    int padding;
+    int num_symbols;
 
 	// vector<unsigned char*> data;
 };

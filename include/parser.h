@@ -22,7 +22,6 @@
 
 using namespace std;
 using namespace rsdic;
-typedef short file_id_t;
 
 class parser {
 public:
@@ -30,14 +29,14 @@ public:
     parser(int file_size_t, int num_files_t);
 	void initialize_parser(int file_size_t, int num_files_t);
     void prepare_ht(void);
-    void parse_file(unsigned char *d, file_id_t current_file_id);
-	void insert_into_ht(file_id_t file_id, unsigned char *p, int ver);
-    pair<int, int> find_match(unsigned char *p, int pos, file_id_t current_file_id, RSDic* phraseEnd );
+    void parse_file(symbol_t *d, file_id_t current_file_id);
+	void insert_into_ht(file_id_t file_id, symbol_t *p, int ver);
+    pair<int, int> find_match(symbol_t *p, int pos, file_id_t current_file_id, RSDic* phraseEnd );
 
 private:
     int file_size;
     int num_files;
-	vector<unsigned char*> data;
+	vector<symbol_t*> data;
 	
     hash_table ht1;
     hash_table ht2;

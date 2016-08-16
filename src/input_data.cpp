@@ -52,7 +52,17 @@ bool input_data::check_data(char* path)
     reference_file = new unsigned char[file_size];
     int ret = fread(reference_file, 1, file_size, in);
     fclose(in);
+
+    num_symbols = file_size/2;
+    if( file_size % 2 == 1 )
+    {
+        padding = 1;
+        num_symbols = num_symbols + 1;
+    }
 	
+    cout << "file_size: " << file_size << endl;
+    cout << "num_symbols: " << num_symbols << endl;
+
 	return true;
 }
 
@@ -106,6 +116,14 @@ int input_data::get_file_size(){
 
 int input_data::get_num_files(){
 	return num_files;
+}
+
+int input_data::get_num_symbols(){
+	return num_symbols;
+}
+
+int input_data::get_padding_flag(){
+	return padding;
 }
 
 vector<string> input_data::get_file_names(){
