@@ -326,7 +326,9 @@ void decompressor::extractLong(int file_id,int start,int len)
 // ***************************************************************
 void decompressor::initialize_decompressor(char* path)
 {
-    gtrac_input.check_data(path); 
+    string ref_file_name = (string)referenceFileDir + ".bv";
+    string metadata_file_name = (string)metadataFileDir + ".bv";
+    gtrac_input.read_metadata(metadata_file_name, ref_file_name); 
 	phraseEnd = readSuccintBitVectors(phraseEndDir);
 	phraseLiteral = readSuccintBitVectors(phraseLiteralDir);
 	phraseSourceSize = readSuccintBitVectors(phraseSourceSizeDir);

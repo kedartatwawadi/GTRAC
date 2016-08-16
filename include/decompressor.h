@@ -21,6 +21,9 @@
 #define phraseLiteralDir "compressed_files/phrase_C"
 #define phraseSourceSizeDir "compressed_files/phrase_s"
 #define phraseParmsDir "compressed_files/phrase_params"
+#define referenceFileDir "compressed_files/reference_file"
+#define metadataFileDir "compressed_files/metadata_file"
+
 #define resultsDir "output_gtrac"
 #define number_of_blocks 4
 

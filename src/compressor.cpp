@@ -226,6 +226,7 @@ void compressor::compress(void)
 	
 	output_all_succint_bv_files();
     output_reference_file();
+    output_metadata();
 }
 
 
@@ -268,6 +269,20 @@ void compressor::output_reference_file()
     {
         output_file << reference_file[i];
     }	
-    output_file.close();
-        
+    output_file.close();        
 }
+
+void compressor::output_metadata()
+{
+    int num_files = gtrac_input.get_num_files();
+	vector<string> file_names = gtrac_input.get_file_names();
+    
+    ofstream output_file((string)metadataFileDir+".bv", ios::binary);
+    for(int i = 0 ; i < num_files ; i++ )
+    {
+        output_file << file_names[i] << endl;
+    }	
+    output_file.close();        
+}
+
+
