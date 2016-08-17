@@ -56,7 +56,6 @@ private:
     void extractLong(int file_id,int start,int len);
 
     RSDic* readSuccintBitVectors(string bvDictDir);
-    unsigned char* read_file(string &name);
     unsigned char getNewCharforPhrase(int file_id, int phrase_id);
     int getSourceforPhrase( int file_id, int phrase_id);
 };

@@ -24,34 +24,6 @@ RSDic* decompressor::readSuccintBitVectors(string bvDictDir)
 }
 
 
-
-// ***************************************************************
-// generic function to read a file
-// ***************************************************************
-unsigned char* decompressor::read_file(string &name)
-{
-	FILE *in = fopen(name.c_str(), "r");
-	if(!in)
-	{
-		cout << "No file!: " << name << "\n";
-		return NULL;
-	}
-
-	// Check size
-	fseek(in, 0, SEEK_END);
-	int size_of_file = ftell(in);
-	fseek(in, 0, SEEK_SET);
-
-	unsigned char *d = new unsigned char[size_of_file];
-	int ret = fread(d, 1, size_of_file, in);
-	fclose(in);
-
-	return d;
-}
-
-
-
-
 // ***************************************************************
 // Given the phrase_id, it gives the new character which we added
 // ***************************************************************
