@@ -7,9 +7,9 @@ using namespace std;
 // ***************************************************************
 void compressor::createBitVector(bool* phrase, int file_id )
 {
-	int file_size = gtrac_input.get_file_size();
+	int num_symbols = gtrac_input.get_num_symbols();
 	bvb.Clear();	
-	for( int j = 0;j < file_size; j++)
+	for( int j = 0;j < num_symbols; j++)
 		bvb.PushBack( phrase[j] );
 	bvb.Build(phraseEnd[file_id]);
 }
@@ -192,7 +192,8 @@ void compressor::compress_file(symbol_t * d, file_id_t file_id)
 			/******************************/
 			// WRITE NEWCHAR
 			/******************************/
-
+            
+            // cout << pos << ": " << match.first << ", " << match.second << endl;
 			out_file.write( (char*)&d[pos], sizeof( symbol_t ) );
 			pos++; // gear up for the next search;
 	}

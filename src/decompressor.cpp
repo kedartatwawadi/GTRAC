@@ -24,38 +24,31 @@ RSDic* decompressor::readSuccintBitVectors(string bvDictDir)
 }
 
 
-
-// ***************************************************************
-// generic function to read a file
-// ***************************************************************
-unsigned char* decompressor::read_file(string &name)
+symbol_t* decompressor::get_symbol_reference_file()
 {
-	FILE *in = fopen(name.c_str(), "r");
-	if(!in)
-	{
-		cout << "No file!: " << name << "\n";
-		return NULL;
-	}
+	unsigned char* ref_file = gtrac_input.get_reference_file();	
+	int num_symbols = gtrac_input.get_num_symbols();
+	int file_size = gtrac_input.get_file_size();
+    
+    int padding = gtrac_input.get_padding_flag();
+    unsigned char *d = new unsigned char[file_size+padding];
+	
+    for( int i = 0 ; i < file_size ; i++)
+        d[i] = ref_file[i];
 
-	// Check size
-	fseek(in, 0, SEEK_END);
-	int size_of_file = ftell(in);
-	fseek(in, 0, SEEK_SET);
+    if(padding)
+        d[file_size+padding] = 0;
 
-	unsigned char *d = new unsigned char[size_of_file];
-	int ret = fread(d, 1, size_of_file, in);
-	fclose(in);
-
-	return d;
+    symbol_t* d_symbol_t_ptr = (symbol_t*)d;
+	return d_symbol_t_ptr;
 }
-
 
 
 
 // ***************************************************************
 // Given the phrase_id, it gives the new character which we added
 // ***************************************************************
-unsigned char decompressor::getNewCharforPhrase(int file_id, int phrase_id)
+symbol_t decompressor::getNewCharforPhrase(int file_id, int phrase_id)
 {
 	vector<string> file_names = gtrac_input.get_file_names();
 	
@@ -63,7 +56,7 @@ unsigned char decompressor::getNewCharforPhrase(int file_id, int phrase_id)
 	ifstream file(((string)phraseParmsDir + "/" + filename + ".parms"),ios::in | ios::binary);
 	int rank_literal = phraseLiteral[file_id].Rank(phrase_id-1,true);
 	int rank_source_size = phraseSourceSize[file_id].Rank(phrase_id-rank_literal-1,true);
-	int position = (phrase_id-1)*1 + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
+	int position = (phrase_id-1)*sizeof(symbol_t) + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
 	
 
 	if( phraseLiteral[file_id].GetBit(phrase_id-1))
@@ -82,8 +75,8 @@ unsigned char decompressor::getNewCharforPhrase(int file_id, int phrase_id)
 	// cout << "rank_literal: " << rank_literal << endl;
 	// cout << "rank_source_size: " << rank_source_size << endl;
 	file.seekg(position,ios::beg);
-	unsigned char phrase_char = (unsigned char)0;
-	file.read((char*) &phrase_char, sizeof(unsigned char));
+	symbol_t phrase_char = 0;
+	file.read((char*) &phrase_char, sizeof(symbol_t));
     
     file.close();
     return phrase_char;
@@ -100,7 +93,7 @@ int decompressor::getSourceforPhrase( int file_id, int phrase_id)
 	ifstream file(((string)phraseParmsDir + +"/"+ filename + ".parms"),ios::in | ios::binary);
 	int rank_literal = phraseLiteral[file_id].Rank(phrase_id-1,true);
 	int rank_source_size = phraseSourceSize[file_id].Rank(phrase_id-1-rank_literal,true);
-	int position = (phrase_id-1)*1 + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
+	int position = (phrase_id-1)*sizeof(symbol_t) + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
 	int p = 0;	
 	file.seekg(position,ios::beg);
 
@@ -120,7 +113,7 @@ int decompressor::getSourceforPhrase( int file_id, int phrase_id)
 		return source_file_id;
 	}
 	
-	// If a 1-byte source, return the same
+	// If a 2-byte source, return the same
 	unsigned short f = 0;
 	file.read((char*) &f, sizeof(unsigned short));
 	int source_file_id = (int)file_id - (int)f;
@@ -149,7 +142,7 @@ int decompressor::select(int file_id, int phrase_id)
 // ***************************************************************
 void decompressor::extract(int file_id, int start, int len)
 {
-	unsigned char* reference_file = gtrac_input.get_reference_file();	
+	symbol_t* reference_file = get_symbol_reference_file();	
     
     if( len > 0)
 	{
@@ -205,7 +198,7 @@ void decompressor::extract(int file_id, int start, int len)
 // ***************************************************************
 void decompressor::extract_block(int file_id, int start, int len, int block_id)
 {
-	unsigned char* reference_file = gtrac_input.get_reference_file();		
+	symbol_t* reference_file = get_symbol_reference_file();		
     
     if( len > 0)
 	{
@@ -262,7 +255,7 @@ void decompressor::extract_block(int file_id, int start, int len, int block_id)
 // ***************************************************************
 void decompressor::extractColumn(int column_no )
 {
-	unsigned char* reference_file = gtrac_input.get_reference_file();		
+	symbol_t* reference_file = get_symbol_reference_file();		
 
     int num_files = gtrac_input.get_num_files();
 	
@@ -332,7 +325,6 @@ void decompressor::initialize_decompressor(char* path)
 	phraseEnd = readSuccintBitVectors(phraseEndDir);
 	phraseLiteral = readSuccintBitVectors(phraseLiteralDir);
 	phraseSourceSize = readSuccintBitVectors(phraseSourceSizeDir);
-
 }
 
 // ***************************************************************
@@ -357,16 +349,18 @@ void decompressor::perform_column_decomp(int column_num)
 void decompressor::perform_row_decomp(int file_id)
 {
 	vector<string> file_names = gtrac_input.get_file_names();
-    int file_size = gtrac_input.get_file_size();
+    int num_symbols = gtrac_input.get_num_symbols();
+    int padding = gtrac_input.get_padding_flag();
+
 
     cout << "Initiating Fast Decompression ... \n";
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    extractLong(file_id, 0, file_size);
+    extractLong(file_id, 0, num_symbols);
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
     duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
     cout << "\nTime: " << time_span.count() << "\n";
 
-    unsigned char temp = 0;
+    symbol_t temp = 0;
     ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
     for(int j = 0 ; j < number_of_blocks ; j++ )
     {
@@ -374,7 +368,12 @@ void decompressor::perform_row_decomp(int file_id)
         for(int i = 0 ; i < block_data[j].size() ; i++ )
         {
             temp = block_data[j][i];
-            output_file << temp;
+            if( i == (block_data.size() - 1) && padding == 1 && j == number_of_blocks - 1 ) 
+                output_file << ((unsigned char*)&temp)[0];
+            else
+                output_file << ((unsigned char*)&temp)[0] << ((unsigned char*)&temp)[1];
+            
+            //output_file << temp;
         }
         //cout << endl;
         // copy(block_data[j].begin(), block_data[j].end(), std::ostream_iterator<unsigned short>(output_file));
@@ -388,7 +387,7 @@ void decompressor::perform_row_decomp(int file_id)
 void decompressor::perform_substring_decomp(int file_id, int start, int len)
 {
 	vector<string> file_names = gtrac_input.get_file_names();
-    
+
     cout << "Initiating Regular Decompression ... \n";
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     extract(file_id, start, len);
@@ -396,15 +395,15 @@ void decompressor::perform_substring_decomp(int file_id, int start, int len)
     duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
     cout << "\nTime: " << time_span.count() << "\n";		
 
-    unsigned char temp = 0;
+    symbol_t temp = 0;
     ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
     for(int i = 0 ; i < data.size() ; i++ )
     {
         temp = data[i];
-        output_file << temp;
+        output_file << ((unsigned char*)&temp)[0] << ((unsigned char*)&temp)[1]; 
+        //output_file << temp;
     }
     cout << endl;	
     output_file.close();
-
 }
 

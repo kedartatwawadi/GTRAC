@@ -100,7 +100,17 @@ bool input_data::read_metadata(string metadata_file_name, string ref_file_name)
     reference_file = new unsigned char[file_size];
     int ret = fread(reference_file, 1, file_size, in);
     fclose(in);
+
+    num_symbols = file_size/2;
+    if( file_size % 2 == 1 )
+    {
+        padding = 1;
+        num_symbols = num_symbols + 1;
+    }
 	
+    cout << "file_size: " << file_size << endl;
+    cout << "num_symbols: " << num_symbols << endl;
+
 	return true;
 }
 

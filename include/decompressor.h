@@ -26,6 +26,7 @@
 
 #define resultsDir "output_gtrac"
 #define number_of_blocks 4
+typedef short symbol_t;
 
 using namespace std;
 using namespace rsdic;
@@ -45,9 +46,9 @@ private:
     RSDic* phraseSourceSize;
 
     input_data gtrac_input;
-    vector<unsigned char> data;
-    vector<vector<unsigned char> > block_data;
-    vector<unsigned char> column_data;
+    vector<symbol_t> data;
+    vector<vector<symbol_t> > block_data;
+    vector<symbol_t> column_data;
 
     int select(int file_id, int phrase_id);
     void extract(int file_id, int start, int len);
@@ -56,9 +57,9 @@ private:
     void extractLong(int file_id,int start,int len);
 
     RSDic* readSuccintBitVectors(string bvDictDir);
-    unsigned char* read_file(string &name);
-    unsigned char getNewCharforPhrase(int file_id, int phrase_id);
+    symbol_t getNewCharforPhrase(int file_id, int phrase_id);
     int getSourceforPhrase( int file_id, int phrase_id);
+    symbol_t* get_symbol_reference_file();
 };
 
 
