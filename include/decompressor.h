@@ -17,14 +17,16 @@
 #include "omp.h"
 #include "input_data.h"
 
-#define phraseEndDir "compressed_files/phrase_end"
-#define phraseLiteralDir "compressed_files/phrase_C"
-#define phraseSourceSizeDir "compressed_files/phrase_s"
-#define phraseParmsDir "compressed_files/phrase_params"
-#define referenceFileDir "compressed_files/reference_file"
-#define metadataFileDir "compressed_files/metadata_file"
+#define compressedFilesDir "compressed_files/"
+#define phraseParmsDir "compressed_files/phrase_params/"
+#define resultsDir "output_gtrac/"
 
-#define resultsDir "output_gtrac"
+#define phraseEndFile "phrase_end"
+#define phraseLiteralFile "phrase_C"
+#define phraseSourceSizeFile "phrase_s"
+#define referenceFile "reference_file"
+#define metadataFile "metadata_file"
+
 #define number_of_blocks 4
 
 using namespace std;
@@ -36,14 +38,15 @@ public:
     void perform_column_decomp(int column_num);
     void perform_row_decomp(int file_id);
     void perform_substring_decomp(int file_id, int start, int len); 
-    void initialize_decompressor(char* path);
+    void initialize_decompressor(char* path, string op_prefix);
 
 private:
     RSDicBuilder bvb;
     RSDic* phraseEnd;
     RSDic* phraseLiteral;
     RSDic* phraseSourceSize;
-
+    string output_prefix;
+    
     input_data gtrac_input;
     vector<unsigned char> data;
     vector<vector<unsigned char> > block_data;
@@ -58,6 +61,7 @@ private:
     RSDic* readSuccintBitVectors(string bvDictDir);
     unsigned char getNewCharforPhrase(int file_id, int phrase_id);
     int getSourceforPhrase( int file_id, int phrase_id);
+    
 };
 
 

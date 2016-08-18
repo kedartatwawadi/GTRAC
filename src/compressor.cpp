@@ -131,7 +131,7 @@ void compressor::compress_file(unsigned char * d, file_id_t file_id)
 	cout << "Parsing file id: " << file_id << endl;
 	
 	string filename = file_names[file_id];
-	ofstream out_file(( (string)phraseParmsDir+"/"+ filename + ".parms"), ios::out | ios::binary | ios::trunc );
+	ofstream out_file(( (string)phraseParmsDir+output_prefix+"."+filename + ".parms"), ios::out | ios::binary | ios::trunc );
 	
 
 	bool phrase[file_size];
@@ -233,12 +233,12 @@ void compressor::compress(void)
 // ***************************************************************
 // Outputs the bv files
 // ***************************************************************
-void compressor::output_bv_files(RSDic* succint_bv_dict, string write_dir)
+void compressor::output_bv_files(RSDic* succint_bv_dict, string file_prefix)
 {
 	int num_files = gtrac_input.get_num_files();
 
 	filebuf fb;
-	string filename = (write_dir  + ".succint_bv"); 
+	string filename = (compressedFilesDir+output_prefix+"."+file_prefix+".succint_bv"); 
 	fb.open(filename.c_str(),std::ios::out);
 	ostream os(&fb);
 
@@ -255,16 +255,16 @@ void compressor::output_bv_files(RSDic* succint_bv_dict, string write_dir)
 // ***************************************************************
 void compressor::output_all_succint_bv_files()
 {
-	output_bv_files(phraseEnd, phraseEndDir);
-	output_bv_files(phraseLiteral, phraseLiteralDir);
-	output_bv_files(phraseSourceSize, phraseSourceSizeDir);
+	output_bv_files(phraseEnd, phraseEndFile);
+	output_bv_files(phraseLiteral, phraseLiteralFile);
+	output_bv_files(phraseSourceSize, phraseSourceSizeFile);
 }
 
 void compressor::output_reference_file()
 {
     unsigned char* reference_file = gtrac_input.get_reference_file();
     int file_size = gtrac_input.get_file_size();
-    ofstream output_file((string)referenceFileDir+".bv", ios::binary);
+    ofstream output_file((string)compressedFilesDir+output_prefix+"."+referenceFile+".bv", ios::binary);
     for(int i = 0 ; i < file_size ; i++ )
     {
         output_file << reference_file[i];
@@ -276,8 +276,9 @@ void compressor::output_metadata()
 {
     int num_files = gtrac_input.get_num_files();
 	vector<string> file_names = gtrac_input.get_file_names();
-    
-    ofstream output_file((string)metadataFileDir+".bv", ios::binary);
+
+    ofstream output_file((string)compressedFilesDir+output_prefix+"."+metadataFile+".bv", ios::binary);
+
     for(int i = 0 ; i < num_files ; i++ )
     {
         output_file << file_names[i] << endl;

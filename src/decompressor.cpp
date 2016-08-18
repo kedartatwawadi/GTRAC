@@ -3,14 +3,14 @@
 // ***************************************************************
 // Read the Succint BitVectors from the files
 // ***************************************************************
-RSDic* decompressor::readSuccintBitVectors(string bvDictDir)
+RSDic* decompressor::readSuccintBitVectors(string bvFilePrefix)
 {
 	//cout << bvDictDir << endl;
 	int num_files = gtrac_input.get_num_files();
 	
     RSDic* bvDict = new RSDic[num_files];
 	filebuf fb;
-	string filename = (bvDictDir + ".succint_bv"); 
+	string filename = (compressedFilesDir + output_prefix+"." + bvFilePrefix + ".succint_bv"); 
 	fb.open(filename.c_str(),std::ios::in);
 	
 	for (int i = 0 ; i < num_files ; i++)
@@ -32,7 +32,7 @@ unsigned char decompressor::getNewCharforPhrase(int file_id, int phrase_id)
 	vector<string> file_names = gtrac_input.get_file_names();
 	
     string filename = file_names[file_id];
-	ifstream file(((string)phraseParmsDir + "/" + filename + ".parms"),ios::in | ios::binary);
+	ifstream file(((string)phraseParmsDir + output_prefix +"."+ filename + ".parms"),ios::in | ios::binary);
 	int rank_literal = phraseLiteral[file_id].Rank(phrase_id-1,true);
 	int rank_source_size = phraseSourceSize[file_id].Rank(phrase_id-rank_literal-1,true);
 	int position = (phrase_id-1)*1 + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
@@ -69,7 +69,7 @@ int decompressor::getSourceforPhrase( int file_id, int phrase_id)
 	vector<string> file_names = gtrac_input.get_file_names();	
 
     string filename = file_names[file_id];
-	ifstream file(((string)phraseParmsDir + +"/"+ filename + ".parms"),ios::in | ios::binary);
+	ifstream file(((string)phraseParmsDir + output_prefix +"."+ filename + ".parms"),ios::in | ios::binary);
 	int rank_literal = phraseLiteral[file_id].Rank(phrase_id-1,true);
 	int rank_source_size = phraseSourceSize[file_id].Rank(phrase_id-1-rank_literal,true);
 	int position = (phrase_id-1)*1 + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
@@ -296,14 +296,15 @@ void decompressor::extractLong(int file_id,int start,int len)
 // ***************************************************************
 // 
 // ***************************************************************
-void decompressor::initialize_decompressor(char* path)
+void decompressor::initialize_decompressor(char* path, string op_prefix)
 {
-    string ref_file_name = (string)referenceFileDir + ".bv";
-    string metadata_file_name = (string)metadataFileDir + ".bv";
+    output_prefix = op_prefix;
+    string ref_file_name = (string)compressedFilesDir+output_prefix + "." + referenceFile + ".bv";
+    string metadata_file_name = (string)compressedFilesDir + output_prefix + "."+ metadataFile + ".bv";
     gtrac_input.read_metadata(metadata_file_name, ref_file_name); 
-	phraseEnd = readSuccintBitVectors(phraseEndDir);
-	phraseLiteral = readSuccintBitVectors(phraseLiteralDir);
-	phraseSourceSize = readSuccintBitVectors(phraseSourceSizeDir);
+	phraseEnd = readSuccintBitVectors(phraseEndFile);
+	phraseLiteral = readSuccintBitVectors(phraseLiteralFile);
+	phraseSourceSize = readSuccintBitVectors(phraseSourceSizeFile);
 
 }
 
@@ -339,7 +340,7 @@ void decompressor::perform_row_decomp(int file_id)
     cout << "\nTime: " << time_span.count() << "\n";
 
     unsigned char temp = 0;
-    ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
+    ofstream output_file((string)resultsDir+output_prefix+"."+file_names[file_id]+".output", ios::binary);
     for(int j = 0 ; j < number_of_blocks ; j++ )
     {
         //cout << "Block id: " << j << endl;
@@ -369,7 +370,7 @@ void decompressor::perform_substring_decomp(int file_id, int start, int len)
     cout << "\nTime: " << time_span.count() << "\n";		
 
     unsigned char temp = 0;
-    ofstream output_file((string)resultsDir+"/"+file_names[file_id]+".output", ios::binary);
+    ofstream output_file((string)resultsDir+output_prefix+"."+file_names[file_id]+".output", ios::binary);
     for(int i = 0 ; i < data.size() ; i++ )
     {
         temp = data[i];

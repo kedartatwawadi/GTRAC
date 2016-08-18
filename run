@@ -404,12 +404,12 @@ decompress_bv()
                  
                 cd chr$c
 		pwd                                                              
-                ../../GTRAC/build/gtrac_decomp f chr$c.list 100
-                ../../GTRAC/build/gtrac_decomp f chr$c.list 1000
-                ../../GTRAC/build/gtrac_decomp f chr$c.list 2000
-                ../../GTRAC/build/gtrac_decomp c chr$c.list 100
-                ../../GTRAC/build/gtrac_decomp c chr$c.list 200
-                ../../GTRAC/build/gtrac_decomp c chr$c.list 300
+                ../../GTRAC/build/gtrac_decomp f chr$c chr$c.list 100
+                ../../GTRAC/build/gtrac_decomp f chr$c chr$c.list 1000
+                ../../GTRAC/build/gtrac_decomp f chr$c chr$c.list 2000
+                ../../GTRAC/build/gtrac_decomp c chr$c chr$c.list 100
+                ../../GTRAC/build/gtrac_decomp c chr$c chr$c.list 200
+                ../../GTRAC/build/gtrac_decomp c chr$c chr$c.list 300
                                                                                          
                 cd ..
         done

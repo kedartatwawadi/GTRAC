@@ -17,12 +17,14 @@
 #include "input_data.h"
 #include "parser.h"
 
-#define phraseEndDir "compressed_files/phrase_end"
-#define phraseLiteralDir "compressed_files/phrase_C"
-#define phraseSourceSizeDir "compressed_files/phrase_s"
-#define phraseParmsDir "compressed_files/phrase_params"
-#define referenceFileDir "compressed_files/reference_file"
-#define metadataFileDir "compressed_files/metadata_file"
+#define compressedFilesDir "compressed_files/"
+#define phraseParmsDir "compressed_files/phrase_params/"
+
+#define phraseEndFile "phrase_end"
+#define phraseLiteralFile "phrase_C"
+#define phraseSourceSizeFile "phrase_s"
+#define referenceFile "reference_file"
+#define metadataFile "metadata_file"
 
 using namespace std;
 using namespace rsdic;
@@ -38,7 +40,7 @@ public:
 	void compress(void);
 	unsigned char* read_file(string &name);
 	void output_all_succint_bv_files();
-	void output_bv_files(RSDic* succint_bv_dict, string write_dir);
+	void output_bv_files(RSDic* succint_bv_dict, string file_prefix);
 	void compress_file(unsigned char * d, file_id_t file_id);
 
 	void createBitVector(bool* phrase, int file_id );
