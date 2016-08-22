@@ -18,8 +18,10 @@
 #include "input_data.h"
 
 #define phraseEndDir "compressed_files/phrase_end"
-#define phraseLiteralDir "compressed_files/phrase_C"
-#define phraseSourceSizeDir "compressed_files/phrase_s"
+#define phraseLiteralDir "compressed_files/phrase_literal"
+#define phraseSourceSizeDir "compressed_files/phrase_source_size"
+#define phraseLiteralSizeDir "compressed_files/phrase_literal_size"
+
 #define phraseParmsDir "compressed_files/phrase_params"
 #define referenceFileDir "compressed_files/reference_file"
 #define metadataFileDir "compressed_files/metadata_file"
@@ -44,6 +46,8 @@ private:
     RSDic* phraseEnd;
     RSDic* phraseLiteral;
     RSDic* phraseSourceSize;
+    RSDic* phraseLiteralSize;
+
 
     input_data gtrac_input;
     vector<symbol_t> data;

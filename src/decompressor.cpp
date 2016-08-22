@@ -56,8 +56,8 @@ symbol_t decompressor::getNewCharforPhrase(int file_id, int phrase_id)
 	ifstream file(((string)phraseParmsDir + "/" + filename + ".parms"),ios::in | ios::binary);
 	int rank_literal = phraseLiteral[file_id].Rank(phrase_id-1,true);
 	int rank_source_size = phraseSourceSize[file_id].Rank(phrase_id-rank_literal-1,true);
-	int position = (phrase_id-1)*sizeof(symbol_t) + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
-	
+	int rank_literal_size = phraseLiteralSize[file_id].Rank(phrase_id-1,true);	
+    int position = (phrase_id-rank_literal_size-1)*sizeof(symbol_t) + rank_literal_size*1 + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
 
 	if( phraseLiteral[file_id].GetBit(phrase_id-1))
 	{
@@ -75,11 +75,19 @@ symbol_t decompressor::getNewCharforPhrase(int file_id, int phrase_id)
 	// cout << "rank_literal: " << rank_literal << endl;
 	// cout << "rank_source_size: " << rank_source_size << endl;
 	file.seekg(position,ios::beg);
-	symbol_t phrase_char = 0;
-	file.read((char*) &phrase_char, sizeof(symbol_t));
-    
+	symbol_t phrase_symbol_t = 0;
+	if( phraseLiteralSize[file_id].GetBit(phrase_id-1) )
+    {
+		unsigned char phrase_char = 0;
+		file.read((char*) &phrase_char, sizeof(unsigned char));
+        phrase_symbol_t = (symbol_t) phrase_char;
+    }
+    else
+    {
+        file.read((char*) &phrase_symbol_t, sizeof(symbol_t));
+    }
     file.close();
-    return phrase_char;
+    return phrase_symbol_t;
 }
 
 // ***************************************************************
@@ -93,7 +101,8 @@ int decompressor::getSourceforPhrase( int file_id, int phrase_id)
 	ifstream file(((string)phraseParmsDir + +"/"+ filename + ".parms"),ios::in | ios::binary);
 	int rank_literal = phraseLiteral[file_id].Rank(phrase_id-1,true);
 	int rank_source_size = phraseSourceSize[file_id].Rank(phrase_id-1-rank_literal,true);
-	int position = (phrase_id-1)*sizeof(symbol_t) + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
+	int rank_literal_size = phraseLiteralSize[file_id].Rank(phrase_id-1,true);	
+    int position = (phrase_id-rank_literal_size-1)*sizeof(symbol_t) + rank_literal_size*1 + rank_source_size*1 + (phrase_id-1-rank_literal-rank_source_size)*2;
 	int p = 0;	
 	file.seekg(position,ios::beg);
 
@@ -325,6 +334,7 @@ void decompressor::initialize_decompressor(char* path)
 	phraseEnd = readSuccintBitVectors(phraseEndDir);
 	phraseLiteral = readSuccintBitVectors(phraseLiteralDir);
 	phraseSourceSize = readSuccintBitVectors(phraseSourceSizeDir);
+	phraseLiteralSize = readSuccintBitVectors(phraseLiteralSizeDir);
 }
 
 // ***************************************************************

@@ -5,31 +5,22 @@ using namespace std;
 // ***************************************************************
 // Bit vector creation functions
 // ***************************************************************
-void compressor::createBitVector(bool* phrase, int file_id )
+void compressor::createBitVector(bool* phrase, int file_id, RSDic* succinct_rsdic )
 {
 	int num_symbols = gtrac_input.get_num_symbols();
 	bvb.Clear();	
 	for( int j = 0;j < num_symbols; j++)
 		bvb.PushBack( phrase[j] );
-	bvb.Build(phraseEnd[file_id]);
+	bvb.Build(succinct_rsdic[file_id]);
 }
 
-void compressor::createLiteralBitVector(vector<bool> phrase_literal, int file_id )
+void compressor::createBitVector(vector<bool> phrase, int file_id, RSDic* succinct_rsdic )
 {
 	bvb.Clear();	
-	for( int j = 0;j < phrase_literal.size(); j++)
-		bvb.PushBack( phrase_literal[j] );
-	bvb.Build(phraseLiteral[file_id]);
+	for( int j = 0;j < phrase.size(); j++)
+		bvb.PushBack( phrase[j] );
+	bvb.Build(succinct_rsdic[file_id]);
 }
-
-void compressor::createSourceSizeBitVector(vector<bool> phrase_source_size, int file_id )
-{
-	bvb.Clear();	
-	for( int j = 0;j < phrase_source_size.size(); j++)
-		bvb.PushBack( phrase_source_size[j] );
-	bvb.Build(phraseSourceSize[file_id]);
-}
-
 
 
 
@@ -79,6 +70,7 @@ bool compressor::prepare_files()
 	phraseEnd = new RSDic[num_files];
 	phraseLiteral = new RSDic[num_files];
 	phraseSourceSize = new RSDic[num_files];
+    phraseLiteralSize = new RSDic[num_files];
 
 	// Always true for the reference vector, as we are storing it directly.
 	for( int j = 0;j < num_symbols; j++)
@@ -148,6 +140,8 @@ void compressor::compress_file(symbol_t * d, file_id_t file_id)
 	fill_n(phrase, num_symbols, false);
 	vector<bool> phrase_literal;
 	vector<bool> phrase_source_size;
+	vector<bool> phrase_literal_size;
+
 
 	pos = 0;
 	while(pos < num_symbols)
@@ -194,14 +188,26 @@ void compressor::compress_file(symbol_t * d, file_id_t file_id)
 			/******************************/
             
             // cout << pos << ": " << match.first << ", " << match.second << endl;
-			out_file.write( (char*)&d[pos], sizeof( symbol_t ) );
+            symbol_t match_new_symbol = d[pos];
+            if( match_new_symbol > 255 )
+            {
+			    out_file.write( (char*)&match_new_symbol, sizeof( symbol_t ) );
+                phrase_literal_size.push_back(false);
+            }
+            else
+            {
+				unsigned char match_new_symbol_char = (unsigned char) match_new_symbol;
+				out_file.write( (char*)&match_new_symbol_char, sizeof( unsigned char ) );
+				phrase_literal_size.push_back(true);
+            }
 			pos++; // gear up for the next search;
 	}
 	
-	createBitVector(phrase,file_id);
-	createLiteralBitVector(phrase_literal,file_id);
-	createSourceSizeBitVector(phrase_source_size,file_id);
-	out_file.close();
+	createBitVector(phrase, file_id, phraseEnd);
+	createBitVector(phrase_literal, file_id, phraseLiteral);
+    createBitVector(phrase_source_size, file_id, phraseSourceSize);
+    createBitVector(phrase_literal_size, file_id, phraseLiteralSize);
+    out_file.close();
 }
 
 
@@ -269,6 +275,7 @@ void compressor::output_all_succint_bv_files()
 	output_bv_files(phraseEnd, phraseEndDir);
 	output_bv_files(phraseLiteral, phraseLiteralDir);
 	output_bv_files(phraseSourceSize, phraseSourceSizeDir);
+	output_bv_files(phraseLiteralSize, phraseLiteralSizeDir);
 }
 
 void compressor::output_reference_file()

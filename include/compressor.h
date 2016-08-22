@@ -18,8 +18,10 @@
 #include "parser.h"
 
 #define phraseEndDir "compressed_files/phrase_end"
-#define phraseLiteralDir "compressed_files/phrase_C"
-#define phraseSourceSizeDir "compressed_files/phrase_s"
+#define phraseLiteralDir "compressed_files/phrase_literal"
+#define phraseSourceSizeDir "compressed_files/phrase_source_size"
+#define phraseLiteralSizeDir "compressed_files/phrase_literal_size"
+
 #define phraseParmsDir "compressed_files/phrase_params"
 #define referenceFileDir "compressed_files/reference_file"
 #define metadataFileDir "compressed_files/metadata_file"
@@ -41,9 +43,8 @@ public:
 	void output_bv_files(RSDic* succint_bv_dict, string write_dir);
 	void compress_file(symbol_t * d, file_id_t file_id);
 
-	void createBitVector(bool* phrase, int file_id );
-	void createLiteralBitVector(vector<bool> phrase_literal, int file_id );
-	void createSourceSizeBitVector(vector<bool> phrase_source_size, int file_id );
+	void createBitVector(bool* phrase, int file_id, RSDic* succinct_rsdic );
+	void createBitVector(vector<bool> phrase_literal, int file_id, RSDic* succinct_rsdic );
 
     void output_reference_file();
     void output_metadata();
@@ -53,6 +54,7 @@ private:
 	RSDic* phraseEnd;
 	RSDic* phraseLiteral;
 	RSDic* phraseSourceSize;
+    RSDic* phraseLiteralSize;
     parser gtrac_parser;
 
 	int pos;
