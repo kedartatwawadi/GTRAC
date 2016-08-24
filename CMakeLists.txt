@@ -3,7 +3,7 @@ project (GTRAC)
 
 #For the shared library:
 set ( PROJECT_LINK_LIBS libRSDic.so)
-set(CMAKE_CXX_FLAGS "-O3 -m64 -pthread -std=c++11")
+set(CMAKE_CXX_FLAGS "-O3 -m64 -pthread -std=c++11 -fopenmp")
 
 include_directories(include/)
 file(GLOB SOURCES "src/*.cpp")
