@@ -4,6 +4,8 @@ GeneType Random Access Compressor
 
 [![Build Status](https://travis-ci.org/kedartatwawadi/GTRAC.svg?branch=master)](https://travis-ci.org/kedartatwawadi/GTRAC)
 
+## More Details
+GTRAC was published in the proceedings of Bioinformatics on 1st Sept. The paper can be accessed [here](http://bioinformatics.oxfordjournals.org/content/32/17/i479.abstract?keytype=ref&ijkey=zrZI3ZNC27MnEih).
 
 ## Getting Started
 ### Install
