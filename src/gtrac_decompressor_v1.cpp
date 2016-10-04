@@ -112,6 +112,7 @@ void readReferenceVector()
 {
 	string reference_filename = file_names[0];
 	reference_file = read_file(reference_filename);
+
 }
 
 // ***************************************************************
@@ -362,7 +363,7 @@ void extractLong(int file_id,int start,int len)
 	int end_pos = start+len-1;
 	int default_len_block = len/factor;
 	int len_block = default_len_block;
-
+	//cout << file_size << endl;
 	//cout << "Block length: " << default_len_block << endl;
 
 	#pragma omp parallel for
@@ -475,6 +476,11 @@ int main(int argc, char** argv)
 	if( decomp_column == true)
 	{
 		cout << "Initiating Column Decompression ... \n";
+		if( column_no >= file_size)
+		{
+			cout << "Max column no can be:" << (file_size-1) << endl;
+			return false; 
+		};
 		high_resolution_clock::time_point t1 = high_resolution_clock::now();
 		extractColumn(column_no);
 		high_resolution_clock::time_point t2 = high_resolution_clock::now();
@@ -487,6 +493,12 @@ int main(int argc, char** argv)
 	{
 		if( fast_decomp)
 		{
+			if( file_id >= no_files)
+			{
+				cout << "Max Sample number can be:" << (no_files-1) << endl; 
+				return false;
+			};
+			
 			cout << "Initiating Fast Deocmpression ... \n";
 			high_resolution_clock::time_point t1 = high_resolution_clock::now();
 			extractLong(file_id, 0, file_size);
