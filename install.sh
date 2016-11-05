@@ -6,7 +6,7 @@ git clone https://github.com/kedartatwawadi/rsdic
 cd rsdic
 ./waf configure
 ./waf
-sudo ./waf install
+#sudo ./waf install
 cd ..
 
 # Clone and build the TGC repo
@@ -19,6 +19,10 @@ cd ../..
 # Build GTRAC
 cd GTRAC
 cd src
+mkdir -p rsdic
+cp ../../rsdic/lib/* rsdic/
+cp ../../rsdic/build/lib/libRSDic.so .
+
 make
 cd ..
 
