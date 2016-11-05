@@ -375,7 +375,10 @@ recreate_VCF()
 
 compress_bv()
 {
-	cd ../Data/
+    cd src
+    export LD_LIBRARY_PATH="$(pwd)"
+    cd ..
+    cd ../Data/
 	for c in $CHROM
         do
 		echo "************************************************************"

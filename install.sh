@@ -22,7 +22,7 @@ cd src
 mkdir -p rsdic
 cp ../../rsdic/lib/* rsdic/
 cp ../../rsdic/build/lib/libRSDic.so .
-
+export LD_LIBRARY_PATH="$(pwd)"
 make
 cd ..
 
