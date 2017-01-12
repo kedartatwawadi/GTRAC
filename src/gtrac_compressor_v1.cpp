@@ -191,7 +191,7 @@ inline pair<int, int> find_match(unsigned char *p, int pos, int ver)
 	// round off pos to the nearest starting point of 
 	int pos_norm = ((pos + hash_step - 1) / hash_step)* hash_step;
 	
-	if(pos_norm + hash_len > file_size)
+	if(pos_norm + hash_len > file_size-1)
 		return make_pair(-1, -1);
 		
 	unsigned long h = hash_fun(p, pos_norm, ver);
@@ -212,7 +212,7 @@ inline pair<int, int> find_match(unsigned char *p, int pos, int ver)
 		// since we only want to reference to previously sequenced stuff.
 		if(file_id < cur_id_file)
 		{ 
-			for(i = pos; i < file_size; ++i)
+			for(i = pos; i < file_size-1; ++i)
 			{
 				//cout << "Here" << endl;
 				if(p[i] != data[file_id][i])
@@ -343,7 +343,7 @@ unsigned char* read_file(string &name)
 	unsigned char *d = new unsigned char[file_size];
 	fread(d, 1, file_size, in);
 	fclose(in);
-
+	cout << "Read File: " << name << endl;
 	return d;
 }
 

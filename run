@@ -397,7 +397,12 @@ compress_bv()
 
 decompress_bv()
 {
+    	cd src
+    	export LD_LIBRARY_PATH="$(pwd)"
+    	cd ..
+
 	cd ../Data/
+	
 	#Sample Decompressions
 	for c in $CHROM
         do
